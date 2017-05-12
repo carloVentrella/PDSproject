@@ -6,8 +6,6 @@
 
 using namespace std;
 
-//CARLO È SCEMO
-
 class Directory:  public Node
 {
 private:
