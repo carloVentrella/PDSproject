@@ -1,11 +1,13 @@
 #include "mainwindow.h"
+#include "presettings.h"
 #include <QApplication>
+
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
+
+    PreSettings s;
 
     return a.exec();
 }

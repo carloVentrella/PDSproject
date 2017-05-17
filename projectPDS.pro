@@ -28,12 +28,23 @@ SOURCES += main.cpp\
     user.cpp \
     node.cpp \
     file.cpp \
-    directory.cpp
+    directory.cpp \
+    settings.cpp \
+    presettings.cpp \
+    secondsettingswindow.cpp
 
 HEADERS  += mainwindow.h \
     user.h \
     node.h \
     file.h \
-    directory.h
+    directory.h \
+    settings.h \
+    presettings.h \
+    secondsettingswindow.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    presettings.ui \
+    secondsettingswindow.ui
+
+RESOURCES += \
+    res.qrc

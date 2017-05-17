@@ -1,21 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <author/>
- <comment/>
- <exportmacro/>
  <class>PreSettings</class>
- <widget name="PreSettings" class="QWidget">
+ <widget class="QWidget" name="PreSettings">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>494</width>
+    <height>101</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="1">
+    <widget class="QLabel" name="fromAllLabel">
+     <property name="text">
+      <string>                       &quot;&quot;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QComboBox" name="onOff"/>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLabel" name="destinationLabel">
+     <property name="text">
+      <string>                       &quot;&quot;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="3">
+    <widget class="QPushButton" name="settingsButton">
+     <property name="styleSheet">
+      <string notr="true">color: rgb(52, 101, 164);
+font: 25 9pt &quot;Ubuntu&quot;;</string>
+     </property>
+     <property name="text">
+      <string>Browse</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Download directory:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QComboBox" name="fromAllComboBox"/>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLabel" name="onOffLabel">
+     <property name="text">
+      <string>                        &quot;&quot;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
  </widget>
- <pixmapfunction/>
+ <resources/>
  <connections/>
 </ui>
