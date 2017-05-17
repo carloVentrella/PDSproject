@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>myappicon.png</file>
+        <file>nautilus-python-script.py</file>
     </qresource>
 </RCC>
