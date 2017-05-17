@@ -4,10 +4,15 @@ import os
 from subprocess import check_output,CalledProcessError
 
 class ColumnExtension(GObject.GObject, Nautilus.MenuProvider):
+
+    global pid;
+
     def __init__(self):
         pass
 
     def get_pid(self,name):
+
+	global pid
 
 	try:
     	    pid=int(check_output(["pidof",name]))
@@ -29,16 +34,16 @@ class ColumnExtension(GObject.GObject, Nautilus.MenuProvider):
 
 	out_file.close();
 
-	pid = self.get_pid("PDSproject")
-
-	if (pid != 0):
-	    os.kill(pid, signal.SIGUSR1);
-	else:
-	    print "PDSproject is not running..."
+        os.kill(pid, signal.SIGUSR1);
 
     def get_file_items(self, window, files):
 
         # If we have files selected, we will add menu entries
+
+	pid = self.get_pid("PDSproject")
+
+	if (pid == 0):
+	    return;
 
         items = [];
 
