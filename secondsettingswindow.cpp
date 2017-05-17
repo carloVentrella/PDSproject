@@ -26,6 +26,7 @@ SecondSettingsWindow::SecondSettingsWindow(QWidget *parent) :
     setWindowTitle("Select Directory");
 
     this->setDestination(fileSystemModel->rootPath().toStdString());
+    ui->directoryLabel->setText(QString::fromUtf8(this->destination.c_str()));
 
     QObject::connect(this, SIGNAL(destinationChanged(string)), this->parent(), SLOT(setDestination(string)));
 }
