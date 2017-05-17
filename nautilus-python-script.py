@@ -40,7 +40,7 @@ class ColumnExtension(GObject.GObject, Nautilus.MenuProvider):
 
         # If we have files selected, we will add menu entries
 
-	pid = self.get_pid("PDSproject")
+	pid = self.get_pid("projectPDS")
 
 	if (pid == 0):
 	    return;
