@@ -8,15 +8,15 @@ class Settings
 {
 private:
     string destination;
-    bool riceviDaTutti;
+    bool fromAll;
     bool on;
 
 public:
     Settings();
     string getDestination() const;
     void setDestination(const string &value);
-    bool getRiceviDaTutti() const;
-    void setRiceviDaTutti(bool value);
+    bool getFromAll() const;
+    void setFromAll(bool value);
     void setDefault(std::string defDest);
     bool getOn() const;
     void setOn(bool value);

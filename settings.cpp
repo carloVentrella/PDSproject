@@ -10,19 +10,19 @@ void Settings::setDestination(const string &value)
     destination = value;
 }
 
-bool Settings::getRiceviDaTutti() const
+bool Settings::getFromAll() const
 {
-    return riceviDaTutti;
+    return fromAll;
 }
 
-void Settings::setRiceviDaTutti(bool value)
+void Settings::setFromAll(bool value)
 {
-    riceviDaTutti = value;
+    fromAll = value;
 }
 
 void Settings::setDefault(string defDest)
 {
-    this->setRiceviDaTutti(true);
+    this->setFromAll(true);
     this->setDestination(defDest);
     this->setOn(true);
 }

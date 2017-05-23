@@ -43,7 +43,7 @@ void PreSettings::setDefault()
 {
     string destination=this->s->getDestination();
     this->settings.setDefault(destination);
-    if(this->settings.getRiceviDaTutti()==true)
+    if(this->settings.getFromAll()==true)
     {
         ui->fromAllLabel->setText("receive from all");
     }
@@ -128,16 +128,16 @@ void PreSettings::on_fromAllComboBox_currentIndexChanged(const QString &arg1)
 {
     if(arg1=="receive from all")
     {
-        this->settings.setRiceviDaTutti(true);
-        if(this->settings.getRiceviDaTutti()==true)
+        this->settings.setFromAll(true);
+        if(this->settings.getFromAll()==true)
         {
             ui->fromAllLabel->setText("receive from all");
         }
     }
     else if(arg1=="ask user to confirm before download")
     {
-        this->settings.setRiceviDaTutti(false);
-        if(!this->settings.getRiceviDaTutti())
+        this->settings.setFromAll(false);
+        if(!this->settings.getFromAll())
         {
             ui->fromAllLabel->setText("ask user to confirm before download");
         }
