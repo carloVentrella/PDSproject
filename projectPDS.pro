@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
+QT       += network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -31,7 +32,9 @@ SOURCES += main.cpp\
     directory.cpp \
     settings.cpp \
     presettings.cpp \
-    secondsettingswindow.cpp
+    secondsettingswindow.cpp \
+    discovery.cpp \
+    users.cpp
 
 HEADERS  += mainwindow.h \
     user.h \
@@ -40,7 +43,9 @@ HEADERS  += mainwindow.h \
     directory.h \
     settings.h \
     presettings.h \
-    secondsettingswindow.h
+    secondsettingswindow.h \
+    discovery.h \
+    users.h
 
 FORMS    += mainwindow.ui \
     presettings.ui \

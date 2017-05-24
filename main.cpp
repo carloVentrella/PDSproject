@@ -6,7 +6,8 @@
 #include <fstream>
 #include <vector>
 #include <string>
-
+#include <discovery.h>
+#include <QHostAddress>
 
 int new_selection(void);
 
@@ -16,14 +17,29 @@ void signal_handler(int sig_no){
         new_selection();
 }
 
+// Example paramenters, should be read from config
+chrono::seconds User::MAX_SILENT = chrono::seconds(10);
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    PreSettings s;
-
     // install signal handler
     signal(SIGUSR1, signal_handler);
+
+    PreSettings s;
+
+    // Example paramenters, should be read from config
+    QHostAddress groupAddress("239.255.43.21");
+    quint16 port(45454);
+
+    // list of neighbours
+    shared_ptr<Users> users(new Users());
+
+    // The scout is charge of handling the user list.
+    // It sends and receives advertisements
+    discovery scout(groupAddress,port, users);
+
 
     return a.exec();
 }
@@ -31,8 +47,8 @@ int main(int argc, char *argv[])
 int new_selection(void){
 
         // read selected files
-
-        string f("/tmp/selected_files"); // should be read from a config file
+        // should be read from a config file
+        string f("/tmp/selected_files");
         vector<string> selected;
 
         ifstream file(f, ifstream::in);

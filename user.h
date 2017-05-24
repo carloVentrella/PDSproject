@@ -2,28 +2,33 @@
 #define USER_H
 #include <string>
 #include <QIcon>
+#include <chrono>
+
 
 using namespace std;
+using namespace chrono;
 
 class User
 {
 private:
-    std::string username;
-    std::string IP;
+    string username;
+    string IP;
     QIcon thumbnail;
+    seconds silentFrom;
 
 
 public:
     User();
-
-
-
-    std::string getIP() const;
-    void setIP(const std::string &value);
-    std::string getUsername() const;
-    void setUsername(const std::string &value);
+    string getIP() const;
+    void setIP(const string &value);
+    string getUsername() const;
+    void setUsername(const string &value);
     QIcon getThumbnail() const;
     void setThumbnail(const QIcon &value);
+    seconds getSilentFrom() const;
+    bool isStillAlive() const;
+    static seconds MAX_SILENT;
+    void stillAlive();
 };
 
 #endif // USER_H
