@@ -11,6 +11,7 @@
 #include <QFileSystemModel>
 #include <QDir>
 #include <string>
+#include "settings.h"
 
 
 #include "settings.h"

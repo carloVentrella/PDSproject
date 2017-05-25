@@ -27,6 +27,7 @@ int main(int argc, char *argv[])
     // install signal handler
     signal(SIGUSR1, signal_handler);
 
+    Settings::getInstance().LoadSettings();
     PreSettings s;
 
     // Example paramenters, should be read from config

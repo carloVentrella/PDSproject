@@ -10,9 +10,7 @@ SecondSettingsWindow::SecondSettingsWindow(QWidget *parent) :
     ui->setupUi(this);
     fileSystemModel=new QFileSystemModel();
 
-    std::string user=qgetenv("USER").toStdString();
-    std::string path="/home/";
-    path.append(user);
+    std::string path=Settings::getInstance().getRoot();
 
     fileSystemModel->setRootPath(path.c_str());
 
@@ -25,7 +23,8 @@ SecondSettingsWindow::SecondSettingsWindow(QWidget *parent) :
 
     setWindowTitle("Select Directory");
 
-    this->setDestination(fileSystemModel->rootPath().toStdString());
+    this->setDestination(Settings::getInstance().getDestination());
+
     ui->directoryLabel->setText(QString::fromUtf8(this->destination.c_str()));
 
     QObject::connect(this, SIGNAL(destinationChanged(string)), this->parent(), SLOT(setDestination(string)));

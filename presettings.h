@@ -16,6 +16,7 @@
 #include <QCoreApplication>
 
 
+
 namespace Ui {
 class PreSettings;
 }
@@ -63,7 +64,6 @@ private:
     QAction *quitAction;
 
     QCheckBox *showIconCheckBox;
-    Settings settings;
 };
 
 #endif // PRESETTINGS_H

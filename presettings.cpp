@@ -6,12 +6,11 @@
 PreSettings::PreSettings(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::PreSettings)
-{    
+{
     this->s=new SecondSettingsWindow(this);
     ui->setupUi(this);
 
     setWindowTitle("Settings");
-
 
     ui->onOff->addItem("public");
     ui->onOff->addItem("private");
@@ -19,9 +18,8 @@ PreSettings::PreSettings(QWidget *parent) :
     ui->fromAllComboBox->addItem("receive from all");
     ui->fromAllComboBox->addItem("ask user to confirm before download");
 
-    this->setDefault();
 
-    ui->onOffLabel->setText("public");
+    this->setDefault();
 
     createActions();
     createTrayIcon();
@@ -42,11 +40,26 @@ PreSettings::~PreSettings()
 void PreSettings::setDefault()
 {
     string destination=this->s->getDestination();
-    this->settings.setDefault(destination);
-    if(this->settings.getFromAll()==true)
+    Settings::getInstance().setDestination(destination);
+
+    if(Settings::getInstance().getFromAll()==1)
     {
         ui->fromAllLabel->setText("receive from all");
     }
+    else
+    {
+        ui->fromAllLabel->setText("ask user to confirm before download");
+    }
+
+    if(Settings::getInstance().getOn()==1)
+    {
+        ui->onOffLabel->setText("public");
+    }
+    else
+    {
+        ui->onOffLabel->setText("private");
+    }
+
     ui->destinationLabel->setText(QString::fromUtf8(destination.c_str()));
 }
 
@@ -59,8 +72,8 @@ void PreSettings::setVisible(bool visible)
 
 void PreSettings::setDestination(string destination)
 {
-    this->settings.setDestination(destination);
-    ui->destinationLabel->setText(QString::fromUtf8(this->settings.getDestination().c_str()));
+    Settings::getInstance().setDestination(destination);
+    ui->destinationLabel->setText(QString::fromUtf8(Settings::getInstance().getDestination().c_str()));
 }
 
 void PreSettings::closeEvent(QCloseEvent *event)
@@ -83,17 +96,17 @@ void PreSettings::on_onOff_currentIndexChanged(const QString &arg1)
 {
     if(arg1=="private")
     {
-        this->settings.setOn(false);
+        Settings::getInstance().setOn(false);
     }
     if(arg1=="public")
     {
-        this->settings.setOn(true);
+        Settings::getInstance().setOn(true);
     }
-    if(this->settings.getOn()==true)
+    if(Settings::getInstance().getOn()==true)
     {
         ui->onOffLabel->setText("public");
     }
-    else if(this->settings.getOn()==false)
+    else if(Settings::getInstance().getOn()==false)
     {
         ui->onOffLabel->setText("private");
     }
@@ -128,16 +141,16 @@ void PreSettings::on_fromAllComboBox_currentIndexChanged(const QString &arg1)
 {
     if(arg1=="receive from all")
     {
-        this->settings.setFromAll(true);
-        if(this->settings.getFromAll()==true)
+        Settings::getInstance().setFromAll(true);
+        if(Settings::getInstance().getFromAll()==true)
         {
             ui->fromAllLabel->setText("receive from all");
         }
     }
     else if(arg1=="ask user to confirm before download")
     {
-        this->settings.setFromAll(false);
-        if(!this->settings.getFromAll())
+        Settings::getInstance().setFromAll(false);
+        if(!Settings::getInstance().getFromAll())
         {
             ui->fromAllLabel->setText("ask user to confirm before download");
         }
