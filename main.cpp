@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "presettings.h"
+#include "settings.h"
 #include <QApplication>
 #include <signal.h>
 #include <iostream>

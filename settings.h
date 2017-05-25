@@ -14,7 +14,6 @@ private:
     string destination;
     bool fromAll;
     bool on;
-
     string root;
     User currentUser;
     int multicastPort;

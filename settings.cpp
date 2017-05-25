@@ -21,7 +21,6 @@ bool Settings::getFromAll() const
 void Settings::setFromAll(bool value)
 {
 
-    cout<<value<<endl;
     fromAll = value;
     this->SaveSetting("downloadWithoutConfirmation",value);
 
@@ -34,7 +33,6 @@ bool Settings::getOn() const
 
 void Settings::setOn(bool value)
 {
-    cout<<value<<endl;
     on = value;
     this->SaveSetting("public", value);
 }
@@ -54,22 +52,11 @@ void Settings::LoadSettings()
     QSettings settings(QString::fromStdString(companyName), QString::fromStdString(appName));
     destination=settings.value("downloadDir", QString::fromStdString(path)).toString().toStdString();
 
-    cout<<destination<<endl;
-
     root=settings.value("rootDir", QString::fromStdString(path)).toString().toStdString();
 
-    cout<<root<<endl;
-
-    cout << "fromAll: " << settings.value("downloadWithoutConfirmation", true).toString().toStdString() << endl;
     fromAll=settings.value("downloadWithoutConfirmation", true).toBool();
 
-    cout<<fromAll<<endl;
-
-
     on=settings.value("public", true).toBool();
-
-    cout<<on<<endl;
-
 
     currentUser.setIP(settings.value("user/IP", "239.255.43.21").toString().toStdString());
     currentUser.setUsername(settings.value("user/username",QString::fromStdString(user)).toString().toStdString());

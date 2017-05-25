@@ -12,12 +12,24 @@ PreSettings::PreSettings(QWidget *parent) :
 
     setWindowTitle("Settings");
 
+    bool on = Settings::getInstance().getOn();
+    bool fromAll=Settings::getInstance().getFromAll();
+
     ui->onOff->addItem("public");
     ui->onOff->addItem("private");
+
+    if(!on)
+    {
+        ui->onOff->setCurrentIndex(1);
+    }
 
     ui->fromAllComboBox->addItem("receive from all");
     ui->fromAllComboBox->addItem("ask user to confirm before download");
 
+    if(!fromAll)
+    {
+        ui->fromAllComboBox->setCurrentIndex(1);
+    }
 
     this->setDefault();
 
@@ -51,7 +63,7 @@ void PreSettings::setDefault()
         ui->fromAllLabel->setText("ask user to confirm before download");
     }
 
-    if(Settings::getInstance().getOn()==1)
+    if(Settings::getInstance().getOn())
     {
         ui->onOffLabel->setText("public");
     }
