@@ -3,11 +3,13 @@
 
 #include <iostream>
 
-UsersWindow::UsersWindow(shared_ptr<Users> users, QWidget *parent) :
+UsersWindow::UsersWindow(vector<string> files, shared_ptr<Users> users, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::UsersWindow)
 {
     this->u=users;
+
+    this->files=files;
 
     this->centralLayout=new QGridLayout(this);
 
@@ -44,11 +46,18 @@ UsersWindow::UsersWindow(shared_ptr<Users> users, QWidget *parent) :
             //trasferring the icon within the label
             QLabel *pixmapLabels=createPixMapLabels(p);
 
+            //username
+            string us=iter->second.get()->getUsername();
+            //IP
+            string ip=iter->second.get()->getIP();
+
             //creating the checkbox for its image
-            QCheckBox *username=new QCheckBox(QString::fromStdString(iter->second.get()->getUsername()), this);
+            QCheckBox *username=new QCheckBox(QString::fromStdString(us), this);
 
             //saving the checkbox (it will be used for the sharing function)
             allButtons.push_back(username);
+
+            usersMap.insert(us,ip);
 
             centralLayout->addWidget(pixmapLabels,i,j,1,1,Qt::Alignment());
 
@@ -73,6 +82,11 @@ UsersWindow::UsersWindow(shared_ptr<Users> users, QWidget *parent) :
     //button added to the layout at the bottom of the window
     centralLayout->addWidget(buttonToShare, i,NUM_COL-1,1,1,Qt::Alignment());
 
+
+    this->t=new Transfer(this->files, this);
+    //connecting the share button to starting tranfer
+    connect(this, SIGNAL(startTransfer()), this->t, SLOT(transferBegin()));
+
     //connecting the button to the function it has to implement
     connect(buttonToShare,&QPushButton::clicked, [this](){
         QListIterator<QCheckBox *> iter(this->allButtons);
@@ -90,6 +104,16 @@ UsersWindow::UsersWindow(shared_ptr<Users> users, QWidget *parent) :
             if(c->isChecked())
             {
                 cout<<s<<" is checked"<<endl;
+
+                //its IP
+                string ip=this->usersMap.find(s).value();
+
+                cout<<" and this is its ip "<<ip<<endl;
+
+                //now i save the user in the selected_users list
+                shared_ptr<User> u=this->u.get()->users.at(ip);
+
+                selected_users.push_back(u);
             }
 
         }
@@ -99,6 +123,13 @@ UsersWindow::UsersWindow(shared_ptr<Users> users, QWidget *parent) :
         //now i have to close the window without stopping the applications
         hide();
 
+        //here it opens the window with the trasfers
+        //ONLY PASS THE LIST OF USERS
+        t->setSelected_users(this->selected_users);
+        t->show();
+
+        emit startTransfer();
+
     });
 
     this->setLayout(centralLayout);
@@ -107,6 +138,7 @@ UsersWindow::UsersWindow(shared_ptr<Users> users, QWidget *parent) :
 
 UsersWindow::~UsersWindow()
 {
+    delete t;
     delete centralLayout;
     delete ui;
 }

@@ -34,7 +34,8 @@ SOURCES += main.cpp\
     users.cpp \
     settingswindow.cpp \
     choosingdirectorywindow.cpp \
-    userswindow.cpp
+    userswindow.cpp \
+    transfer.cpp
 
 HEADERS  += \
     user.h \
@@ -46,12 +47,14 @@ HEADERS  += \
     users.h \
     settingswindow.h \
     choosingdirectorywindow.h \
-    userswindow.h
+    userswindow.h \
+    transfer.h
 
 FORMS    += \
     settingswindow.ui \
     choosingdirectorywindow.ui \
-    userswindow.ui
+    userswindow.ui \
+    transfer.ui
 
 RESOURCES += \
     res.qrc

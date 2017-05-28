@@ -4,6 +4,7 @@
 #include <QDialog>
 
 #include "users.h"
+#include "transfer.h"
 
 #include <QCheckBox>
 #include <QGridLayout>
@@ -26,7 +27,7 @@ class UsersWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit UsersWindow(shared_ptr<Users> users, QWidget *parent = 0);
+    explicit UsersWindow(vector<string> files, shared_ptr<Users> users, QWidget *parent = 0);
     ~UsersWindow();
 
 protected:
@@ -34,11 +35,27 @@ protected:
     //the window is closed
     void closeEvent(QCloseEvent *event) override;
 
+signals:
+    //this function begins the trasfer
+    void startTransfer();
+
 private:
     Ui::UsersWindow *ui;
 
+    //here it is the transferring window
+    Transfer *t;
+
     //this contains the map of users that has to be shown in the window
     shared_ptr<Users> u;
+
+    //vector of selected files
+    vector<string> files;
+
+    //this is necessary to find the IP from the username
+    QMap<string,string> usersMap;
+
+    //list of users to be returned
+    QList<shared_ptr<User>> selected_users;
 
     //parameters of the gridLayout
     const int NUM_COL=4;
