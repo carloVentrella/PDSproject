@@ -1,17 +1,18 @@
-#include "presettings.h"
-#include "ui_presettings.h"
+#include "settingswindow.h"
+#include "ui_settingswindow.h"
 
-#include "secondsettingswindow.h"
 
-PreSettings::PreSettings(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::PreSettings)
+SettingsWindow::SettingsWindow(QWidget *parent) :
+    QDialog(parent),
+    ui(new Ui::SettingsWindow)
 {
-    this->s=new SecondSettingsWindow(this);
+    this->s=new ChoosingDirectoryWindow(this);
+
     ui->setupUi(this);
 
     setWindowTitle("Settings");
 
+    //to verify what the default values are, so they can be showed as well
     bool on = Settings::getInstance().getOn();
     bool fromAll=Settings::getInstance().getFromAll();
 
@@ -31,6 +32,7 @@ PreSettings::PreSettings(QWidget *parent) :
         ui->fromAllComboBox->setCurrentIndex(1);
     }
 
+
     this->setDefault();
 
     createActions();
@@ -44,12 +46,15 @@ PreSettings::PreSettings(QWidget *parent) :
 
 }
 
-PreSettings::~PreSettings()
+SettingsWindow::~SettingsWindow()
 {
+    delete s;
+    delete showIconCheckBox;
     delete ui;
 }
 
-void PreSettings::setDefault()
+
+void SettingsWindow::setDefault()
 {
     string destination=this->s->getDestination();
     Settings::getInstance().setDestination(destination);
@@ -75,20 +80,19 @@ void PreSettings::setDefault()
     ui->destinationLabel->setText(QString::fromUtf8(destination.c_str()));
 }
 
-void PreSettings::setVisible(bool visible)
+void SettingsWindow::setVisible(bool visible)
 {
-
         openAction->setEnabled(isMaximized() || !visible);
         QWidget::setVisible(visible);
 }
 
-void PreSettings::setDestination(string destination)
+void SettingsWindow::setDestination(string destination)
 {
     Settings::getInstance().setDestination(destination);
     ui->destinationLabel->setText(QString::fromUtf8(Settings::getInstance().getDestination().c_str()));
 }
 
-void PreSettings::closeEvent(QCloseEvent *event)
+void SettingsWindow::closeEvent(QCloseEvent *event)
 {
     if (!event->spontaneous() || !isVisible()) {
             return;
@@ -104,7 +108,7 @@ void PreSettings::closeEvent(QCloseEvent *event)
         }
 }
 
-void PreSettings::on_onOff_currentIndexChanged(const QString &arg1)
+void SettingsWindow::on_onOff_currentIndexChanged(const QString &arg1)
 {
     if(arg1=="private")
     {
@@ -124,12 +128,12 @@ void PreSettings::on_onOff_currentIndexChanged(const QString &arg1)
     }
 }
 
-void PreSettings::on_settingsButton_clicked()
+void SettingsWindow::on_settingsButton_clicked()
 {
     s->show();
 }
 
-void PreSettings::createActions()
+void SettingsWindow::createActions()
 {
         openAction = new QAction(tr("&Open settings"), this);
         connect(openAction, &QAction::triggered, this, &QWidget::showNormal);
@@ -138,7 +142,7 @@ void PreSettings::createActions()
         connect(quitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
 }
 
-void PreSettings::createTrayIcon()
+void SettingsWindow::createTrayIcon()
 {
     trayIconMenu = new QMenu(this);
         trayIconMenu->addAction(openAction);
@@ -149,7 +153,7 @@ void PreSettings::createTrayIcon()
         mSystemTrayIcon->setContextMenu(trayIconMenu);
 }
 
-void PreSettings::on_fromAllComboBox_currentIndexChanged(const QString &arg1)
+void SettingsWindow::on_fromAllComboBox_currentIndexChanged(const QString &arg1)
 {
     if(arg1=="receive from all")
     {

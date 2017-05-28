@@ -34,14 +34,18 @@ public:
     bool getOn() const;
     void setOn(bool value);
 
+    //when this function is called, it returns the Settings class if it was previously created;
+    //if it the first time the getInstance is called, it calls the constructor
     static Settings& getInstance()
     {
         static Settings instance;
         return instance;
     }
 
-
+    //this function write the QSetting file
     void SaveSetting(const QString &key, const QVariant &variant);
+
+    //this funcion reads the QSetting file
     void LoadSettings();
 
     string getCompanyName() const;

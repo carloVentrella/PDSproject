@@ -19,9 +19,10 @@ public:
     size_t size();
     void garbageCollection();
 
+    map<string, shared_ptr<User>> users;
+
 private:
     mutex mtx;
-    map<string, shared_ptr<User>> users;
 
 };
 

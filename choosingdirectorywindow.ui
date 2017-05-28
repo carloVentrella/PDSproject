@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SecondSettingsWindow</class>
- <widget class="QDialog" name="SecondSettingsWindow">
+ <class>ChoosingDirectoryWindow</class>
+ <widget class="QDialog" name="ChoosingDirectoryWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>435</width>
-    <height>281</height>
+    <width>440</width>
+    <height>282</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
+  <layout class="QFormLayout" name="formLayout">
    <item row="0" column="0" colspan="2">
     <widget class="QTreeView" name="tree"/>
    </item>

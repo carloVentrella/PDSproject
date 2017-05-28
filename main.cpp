@@ -1,6 +1,9 @@
-#include "mainwindow.h"
-#include "presettings.h"
+#include "settingswindow.h"
 #include "settings.h"
+
+#include "userswindow.h"
+
+
 #include <QApplication>
 #include <signal.h>
 #include <iostream>
@@ -28,8 +31,8 @@ int main(int argc, char *argv[])
     // install signal handler
     signal(SIGUSR1, signal_handler);
 
-    Settings::getInstance().LoadSettings();
-    PreSettings s;
+    //settings window containing all basic informations
+    SettingsWindow s;
 
     // Example paramenters, should be read from config
     QHostAddress groupAddress("239.255.43.21");
@@ -42,6 +45,36 @@ int main(int argc, char *argv[])
     // It sends and receives advertisements
     discovery scout(groupAddress,port, users);
 
+//TESTING USERWINDOW (TO BE DELETED)
+
+    string image=":/thumbnails/t7.png";
+    shared_ptr<User> us(new User());
+    us.get()->setUsername("assuntap");
+    us.get()->setIP("1");
+    us.get()->setThumbnail(QIcon(image.c_str()));
+    users.get()->addUser(us);
+
+    shared_ptr<User> us1(new User());
+    us1.get()->setUsername("charlesv");
+    us1.get()->setIP("2");
+    us1.get()->setThumbnail(QIcon(image.c_str()));
+    users.get()->addUser(us1);
+
+    int i=3;
+    while(i<15)
+    {
+        shared_ptr<User> us(new User());
+        us.get()->setUsername(std::to_string(i));
+        us.get()->setIP(std::to_string(i));
+        us.get()->setThumbnail(QIcon(image.c_str()));
+        users.get()->addUser(us);
+        i++;
+    }
+
+
+    UsersWindow u(users,0);
+    u.show();
+//END TESTING (TO BE DELETED)
 
     return a.exec();
 }

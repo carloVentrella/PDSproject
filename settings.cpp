@@ -45,9 +45,12 @@ void Settings::SaveSetting(const QString &key, const QVariant &variant)
 
 void Settings::LoadSettings()
 {
+    //finding the root of the fileSystemTree
+    //it is necessary to discover the username
     std::string user=qgetenv("USER").toStdString();
     std::string path="/home/";
     path.append(user);
+
 
     QSettings settings(QString::fromStdString(companyName), QString::fromStdString(appName));
     destination=settings.value("downloadDir", QString::fromStdString(path)).toString().toStdString();

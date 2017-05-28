@@ -25,31 +25,33 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp \
     user.cpp \
     node.cpp \
     file.cpp \
     directory.cpp \
     settings.cpp \
-    presettings.cpp \
-    secondsettingswindow.cpp \
     discovery.cpp \
-    users.cpp
+    users.cpp \
+    settingswindow.cpp \
+    choosingdirectorywindow.cpp \
+    userswindow.cpp
 
-HEADERS  += mainwindow.h \
+HEADERS  += \
     user.h \
     node.h \
     file.h \
     directory.h \
     settings.h \
-    presettings.h \
-    secondsettingswindow.h \
     discovery.h \
-    users.h
+    users.h \
+    settingswindow.h \
+    choosingdirectorywindow.h \
+    userswindow.h
 
-FORMS    += mainwindow.ui \
-    presettings.ui \
-    secondsettingswindow.ui
+FORMS    += \
+    settingswindow.ui \
+    choosingdirectorywindow.ui \
+    userswindow.ui
 
 RESOURCES += \
     res.qrc
