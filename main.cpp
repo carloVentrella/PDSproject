@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     users.get()->addUser(us1);
 
     int i=3;
-    while(i<10)
+    while(i<16)
     {
         shared_ptr<User> us(new User());
         us.get()->setUsername(std::to_string(i));

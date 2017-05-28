@@ -16,7 +16,8 @@ Transfer::Transfer(vector<string> files, QWidget *parent) :
     setWindowTitle("Transfer");
 
 
-    QLabel *label=new QLabel("Sending files..", this, Qt::WindowFlags());
+    QLabel *label=new QLabel("Sending files to..", this, Qt::WindowFlags());
+
     centralLayout->addWidget(label);
 
     progressBar=new QProgressBar(this);
