@@ -54,6 +54,9 @@ UsersWindow::UsersWindow(vector<string> files, shared_ptr<Users> users, QWidget 
             //creating the checkbox for its image
             QCheckBox *username=new QCheckBox(QString::fromStdString(us), this);
 
+            username->setMinimumWidth(60);
+            username->setMaximumWidth(140);
+
             //saving the checkbox (it will be used for the sharing function)
             allButtons.push_back(username);
 
@@ -76,20 +79,23 @@ UsersWindow::UsersWindow(vector<string> files, shared_ptr<Users> users, QWidget 
     }
 
 
-    //creating the button that will be used to determine who to share file with
-    QPushButton *buttonToShare=new QPushButton("Share", this);
-
-    //button added to the layout at the bottom of the window
-    centralLayout->addWidget(buttonToShare, i,NUM_COL-1,1,1,Qt::Alignment());
-
-
     this->t=new Transfer(this->files, this);
     //connecting the share button to starting tranfer
     connect(this, SIGNAL(startTransfer()), this->t, SLOT(transferBegin()));
 
+    //creating the button that will be used to determine who to share file with
+    QPushButton *buttonToShare=new QPushButton("Share", this);
+
+    buttonToShare->setMaximumWidth(140);
+    buttonToShare->setMinimumWidth(60);
+
+    //button added to the layout at the bottom of the window
+    centralLayout->addWidget(buttonToShare, i,NUM_COL-1,1,1,Qt::Alignment());
+
     //connecting the button to the function it has to implement
     connect(buttonToShare,&QPushButton::clicked, [this](){
         QListIterator<QCheckBox *> iter(this->allButtons);
+        int flag=0;
         while(iter.hasNext())
         {
             QCheckBox * c=iter.next();
@@ -103,6 +109,7 @@ UsersWindow::UsersWindow(vector<string> files, shared_ptr<Users> users, QWidget 
 
             if(c->isChecked())
             {
+                flag=1;
                 cout<<s<<" is checked"<<endl;
 
                 //its IP
@@ -120,16 +127,23 @@ UsersWindow::UsersWindow(vector<string> files, shared_ptr<Users> users, QWidget 
 
         cout<<"here i am sharing"<<endl;
 
-        //now i have to close the window without stopping the applications
-        hide();
+        if(flag==0)
+        {
+            QMessageBox::warning(this, "Warning", "No user checked.. Don't know who to send to..");
+        }
+        else
+        {
+            //now i have to close the window without stopping the applications
+            hide();
 
-        //here it opens the window with the trasfers
-        //ONLY PASS THE LIST OF USERS
-        t->setSelected_users(this->selected_users);
-        t->show();
+            //here it opens the window with the trasfers
+            //ONLY PASS THE LIST OF USERS
+            t->setSelected_users(this->selected_users);
 
-        emit startTransfer();
+            t->show();
 
+            emit startTransfer();
+        }
     });
 
     this->setLayout(centralLayout);
@@ -138,7 +152,6 @@ UsersWindow::UsersWindow(vector<string> files, shared_ptr<Users> users, QWidget 
 
 UsersWindow::~UsersWindow()
 {
-    delete t;
     delete centralLayout;
     delete ui;
 }
@@ -170,11 +183,11 @@ QLabel *UsersWindow::createPixMapLabels(QIcon p)
 
       label->setAutoFillBackground(true);
 
-      label->setMinimumSize(132, 132);
+      label->setMinimumSize(60, 60);
       label->setMaximumSize(140,140);
 
       //to associate the label and the icon
-      const QPixmap pixmap=p.pixmap(132,132, QIcon::Normal, QIcon::On);
+      const QPixmap pixmap=p.pixmap(100,100, QIcon::Normal, QIcon::On);
       label->setPixmap(pixmap);
 
       return label;

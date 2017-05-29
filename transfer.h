@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <QList>
+#include <QListIterator>
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QProgressBar>
@@ -54,7 +55,13 @@ private:
 
     QLabel *remainingTime;
 
+    QLabel *usersLabel;
+
     QPushButton *cancelOperation;
+
+    //this flagis useful when we want to stop the operation->
+    //nothing will be done after this flag is set
+    int flag;
 
 };
 

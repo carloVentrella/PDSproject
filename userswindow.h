@@ -15,6 +15,7 @@
 #include <QList>
 #include <QListIterator>
 #include <QCloseEvent>
+#include <QMessageBox>
 
 using namespace std;
 
@@ -42,6 +43,10 @@ signals:
 private:
     Ui::UsersWindow *ui;
 
+    //this function creates the label associated with the icon
+    QLabel* createPixMapLabels(QIcon p);
+
+
     //here it is the transferring window
     Transfer *t;
 
@@ -61,8 +66,6 @@ private:
     const int NUM_COL=4;
     int NUM_ROWS;
 
-    //this function creates the label associated with the icon
-    QLabel* createPixMapLabels(QIcon p);
 
     //this is the layout for the window that contains labels, checkbox
     //and the final button
