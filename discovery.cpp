@@ -1,6 +1,7 @@
 #include "discovery.h"
 #include <QJsonObject>
 #include <QJsonDocument>
+#include <QBuffer>
 #include <string>
 #include <thread>
 #include <chrono>
@@ -8,10 +9,12 @@
 #include <QTimer>
 #include <user.h>
 #include <memory>
-
+#include <QDateTime>
+#include <settings.h>
 
 discovery::discovery(QHostAddress addr, quint16 port, shared_ptr<Users> users,  QObject *parent) : QObject(parent)
 {
+
     this->local_addresses = QNetworkInterface::allAddresses();
 
     this->addr = addr;
@@ -44,7 +47,7 @@ discovery::discovery(QHostAddress addr, quint16 port, shared_ptr<Users> users,  
     notify();
 
     readyMessageTimer->start(10000);
-    garbageCollectionTimer->start(15000);
+    garbageCollectionTimer->start(150000);
 
 
 }
@@ -55,9 +58,10 @@ void discovery::readyRead()
     QByteArray buffer;
     QHostAddress sender;
     quint16 senderPort;
-    string usr;
+    string username;
     string msg;
     string ip;
+    QIcon thumb;
 
 
     while (socketIn->hasPendingDatagrams()) {
@@ -77,32 +81,60 @@ void discovery::readyRead()
         QJsonDocument doc = QJsonDocument::fromBinaryData(buffer);
         QJsonObject jsonResponse = doc.object();
 
-        usr = jsonResponse["USR"].toString().toUtf8().constData();
+        username = jsonResponse["USR"].toString().toUtf8().constData();
         msg = jsonResponse["MSG"].toString().toUtf8().constData();
+
+
+        if (jsonResponse.contains("THUMB")){
+            // Extract image
+            QPixmap p;
+            QByteArray encoded = jsonResponse["THUMB"].toString().toLatin1();
+            p.loadFromData(QByteArray::fromBase64(encoded), "PNG");
+            thumb.addPixmap(p);
+
+            qDebug("Thumb received");
+
+        }
+
         ip =  sender.toString().toUtf8().constData();
 
         qDebug("Message from: [%s,%d]", ip.c_str(),senderPort );
 
+
         if ( msg == "Ready" ){
 
             if (this->users->contains(ip)){
-                this->users->getUser(ip)->stillAlive();
+
+                shared_ptr<User> user(this->users->getUser(ip));
+
+                // update thumbnail if present
+                if (!thumb.isNull())
+                    user->setThumbnail(thumb);
+                // update user lifetime
+                user->stillAlive();
                 return;
             }
 
            // Add user to the list
-           User u;
-           u.setIP(ip);
-           u.setUsername(usr);
+           shared_ptr<User> user(new User());
+           user->setIP(ip);
+           user->setUsername(username);
+           // update thumbnail if present
+           if (!thumb.isNull())
+               user->setThumbnail(thumb);
 
-           this->users->addUser(std::make_shared<User>(u));
-           qDebug("New user added: [%s]", usr.c_str());
+           this->users->addUser(user);
+           qDebug("New user added: [%s]", username.c_str());
+
+           // if a new user has been added I have to send a new notification
+           // to send him my thumbnail
+           this->notify(true);
 
         } else if (msg == "Quitting") {
 
             // Remove user from the list
             this->users->removeUser(ip);
-            qDebug("User [%s] removed", usr.c_str());
+            qDebug("User [%s] removed", username.c_str());
 
         } else {
             qDebug("Unknown command");
@@ -112,17 +144,38 @@ void discovery::readyRead()
 }
 
 
-void discovery::notify(){
+void discovery::notify(bool thumb){
 
     QJsonObject jsonRequest;
 
     // Example
     // These info should be read from config
-    QString user("Mario Rossi");
+
+    User curUsr = Settings::getInstance().getCurrentUser();
+
+    QString user = QString::fromStdString(curUsr.getUsername());
+    QIcon icn = curUsr.getThumbnail();
     QString msg("Ready");
 
     jsonRequest["USR"]=user;
     jsonRequest["MSG"]=msg;
+
+    if (thumb){
+
+        // extracts array of bytes from QIcon
+        QByteArray data;
+        QBuffer buffer { &data };
+        QList<QSize> sizes = icn.availableSizes();
+        QPixmap pixmap = icn.pixmap(icn.actualSize(QSize(100,100)));
+        buffer.open(QIODevice::WriteOnly);
+        if (!pixmap.save(&buffer, "PNG")){
+            qDebug("Cannot send thumb");
+            return;
+        }
+        QByteArray encoded = buffer.data().toBase64();
+        jsonRequest.insert("THUMB",QJsonValue(QString(encoded)));
+
+    }
 
     sendMessage(jsonRequest);
 
@@ -131,9 +184,7 @@ void discovery::notify(){
 void discovery::garbage(){
 
     this->users->garbageCollection();
-
 }
-
 
 void discovery::sendMessage(QJsonObject jsonRequest)
 {
@@ -141,11 +192,20 @@ void discovery::sendMessage(QJsonObject jsonRequest)
         qDebug("jsonRequest is empty.");
         return;
     }
+
     // create the json binary representation
     QJsonDocument doc(jsonRequest);
-    QByteArray data( doc.toBinaryData() );
+    QByteArray data(doc.toBinaryData());
 
-    this->socketOut->writeDatagram(data, this->addr, this->port);
-    qDebug("Message sent");
+    if(this->socketOut->writeDatagram(data, this->addr, this->port)==-1){
+        // We may reach this point if the datagram is too big
+        // The maximum size of a datagram is highly platform indipendent
+        qDebug("Error while sending datagram");
+        qDebug() << "Error:" << this->socketOut->error();
+
+    }else{
+        qDebug() << "Datagram sent ("<< data.size() <<")";
+    }
+
 }
 

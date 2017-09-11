@@ -47,11 +47,15 @@ int main(int argc, char *argv[])
 
 //TESTING USERWINDOW (TO BE DELETED)
 
-    string image=":/thumbnails/t7.png";
+    string image=":/thumbnails/10.png";
+    string image2=":/thumbnails/8.png";
+    string image3=":/thumbnails/6.png";
+    string image4=":/thumbnails/4.png";
+
     shared_ptr<User> us(new User());
     us.get()->setUsername("assuntap");
     us.get()->setIP("1");
-    us.get()->setThumbnail(QIcon(image.c_str()));
+    us.get()->setThumbnail(QIcon(image2.c_str()));
     users.get()->addUser(us);
 
     shared_ptr<User> us1(new User());
@@ -60,16 +64,17 @@ int main(int argc, char *argv[])
     us1.get()->setThumbnail(QIcon(image.c_str()));
     users.get()->addUser(us1);
 
-    int i=3;
-    while(i<16)
-    {
-        shared_ptr<User> us(new User());
-        us.get()->setUsername(std::to_string(i));
-        us.get()->setIP(std::to_string(i));
-        us.get()->setThumbnail(QIcon(image.c_str()));
-        users.get()->addUser(us);
-        i++;
-    }
+    shared_ptr<User> us3(new User());
+    us3.get()->setUsername("Prof2");
+    us3.get()->setIP(std::to_string(4));
+    us3.get()->setThumbnail(QIcon(image3.c_str()));
+    users.get()->addUser(us3);
+
+    shared_ptr<User> us4(new User());
+    us4.get()->setUsername("Prof1");
+    us4.get()->setIP(std::to_string(5));
+    us4.get()->setThumbnail(QIcon(image4.c_str()));
+    users.get()->addUser(us4);
 
     //list of files to test
     vector<string> files;

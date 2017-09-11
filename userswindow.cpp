@@ -179,11 +179,13 @@ QLabel *UsersWindow::createPixMapLabels(QIcon p)
 
       label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-      label->setBackgroundRole(QPalette::Base);
+      // This assures a transparent background
+      label->setBackgroundRole(QPalette::NoRole);
+      label->setStyleSheet("border:0px");
 
       label->setAutoFillBackground(true);
 
-      label->setMinimumSize(60, 60);
+      label->setMinimumSize(100, 100);
       label->setMaximumSize(140,140);
 
       //to associate the label and the icon

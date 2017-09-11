@@ -20,7 +20,7 @@ signals:
 
 public slots:
     void readyRead();
-    void notify();
+    void notify(bool thumb=false);
     void garbage();
 
 private:

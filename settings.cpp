@@ -49,6 +49,7 @@ void Settings::LoadSettings()
     //it is necessary to discover the username
     std::string user=qgetenv("USER").toStdString();
     std::string path="/home/";
+    std::string thumb=":/thumbnails/t7.png";
     path.append(user);
 
 
@@ -63,6 +64,7 @@ void Settings::LoadSettings()
 
     currentUser.setIP(settings.value("user/IP", "239.255.43.21").toString().toStdString());
     currentUser.setUsername(settings.value("user/username",QString::fromStdString(user)).toString().toStdString());
+    currentUser.setThumbnail(QIcon(thumb.c_str()));
     multicastPort=settings.value("discovery/multicastPort", 45454).toInt();
     //THUMBNAIL HERE !!!
     //MAXSILENT AND GARBAGE COLLECTOR TIMER
