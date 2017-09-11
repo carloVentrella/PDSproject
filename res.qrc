@@ -3,5 +3,9 @@
         <file>myappicon.png</file>
         <file>nautilus-python-script.py</file>
         <file>thumbnails/t7.png</file>
+        <file>thumbnails/10.png</file>
+        <file>thumbnails/8.png</file>
+        <file>thumbnails/6.png</file>
+        <file>thumbnails/4.png</file>
     </qresource>
 </RCC>
