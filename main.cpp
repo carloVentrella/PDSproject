@@ -51,7 +51,6 @@ int main(int argc, char *argv[])
     string image2=":/thumbnails/8.png";
     string image3=":/thumbnails/6.png";
     string image4=":/thumbnails/4.png";
-    string image=":/thumbnails/t7.png";
 
     //list of files to test
     vector<string> files;
