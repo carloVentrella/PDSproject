@@ -47,6 +47,14 @@ int main(int argc, char *argv[])
 
 //TESTING USERWINDOW (TO BE DELETED)
 
+    //list of files to test
+    vector<string> files;
+    files.push_back("file1");
+    files.push_back("file2");
+    files.push_back("file3");
+
+    UsersWindow *u=new UsersWindow(files, users,0);
+
     string image=":/thumbnails/t7.png";
     shared_ptr<User> us(new User());
     us.get()->setUsername("assuntap");
@@ -61,7 +69,7 @@ int main(int argc, char *argv[])
     users.get()->addUser(us1);
 
     int i=3;
-    while(i<16)
+    while(i<17)
     {
         shared_ptr<User> us(new User());
         us.get()->setUsername(std::to_string(i));
@@ -71,14 +79,7 @@ int main(int argc, char *argv[])
         i++;
     }
 
-    //list of files to test
-    vector<string> files;
-    files.push_back("file1");
-    files.push_back("file2");
-    files.push_back("file3");
-
-    UsersWindow u(files, users,0);
-    u.show();
+    u->show();
 //END TESTING (TO BE DELETED)
 
     return a.exec();

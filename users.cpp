@@ -13,16 +13,27 @@ void Users::addUser(shared_ptr<User> u){
     u->stillAlive();
 
     std::cout << "User ["<< u->getIP() <<"] added" << std::endl;
-
+    emit modifiedUsersMap(u->getIP(),(users.size())-1,true);
 }
 
 void Users::removeUser(const string &ip){
 
     mtx.lock();
+    int pos=0;
+    string username;
+    for(map<string,shared_ptr<User>>::iterator iter=users.begin();iter!=users.end();iter++)
+    {
+        if(iter->first==ip)
+           {username=iter->second->getUsername();
+            break; }
+        pos++;
+    }
     users.erase(ip);
     mtx.unlock();
 
     std::cout << "User ["<< ip <<"] removed" << std::endl;
+
+    emit modifiedUsersMap(username, pos,false);
 }
 
 shared_ptr<User> Users::getUser(const string &ip){

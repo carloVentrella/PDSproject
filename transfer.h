@@ -14,6 +14,11 @@
 #include <memory>
 #include "user.h"
 #include "settings.h"
+#include <QPalette>
+#include <QThread>
+#include "workerthread.h"
+
+#include <QMutex>
 
 using namespace std;
 
@@ -26,15 +31,56 @@ class Transfer : public QDialog
     Q_OBJECT
 
 public:
-    explicit Transfer(vector<string> files, QWidget *parent = 0);
+    explicit Transfer(QList<shared_ptr<User>> selected_users,vector<string> files, QWidget *parent = 0);
     ~Transfer();
 
+    //getter and setter for the users list
     QList<shared_ptr<User> > getSelected_users() const;
     void setSelected_users(const QList<shared_ptr<User> > &value);
+
+    //this function has to be done after the terination of a thread, if it terminates before work is over
+    void handleCancelation(int node);
+
+    //getter for the flag of a specific node
+    int getFlagAtNode(int node);
+
+    //getter and setter for the general progBar
+    QProgressBar *getProgressBar() const;
+    void setProgressBar(QProgressBar *value);
+
+    //getter and setter for the label of the general remainingTime
+    QLabel *getRemainingTime() const;
+    void setRemainingTime(QLabel *value);
+
+    //getter for progBar and remainingTime for each user
+    QProgressBar * getProgressBarPerSingleTransfer(int node)
+    {
+        return this->progressBarPerSingleTransfer.at(node);
+    }
+
+    QLabel* getRemainingTimePerSingle(int node){
+        return this->remainingTimePerSingleTransfer.at(node);
+    }
+
+    //getter and setter for the vector of files
+    vector<string> getFiles() const;
+    void setFiles(const vector<string> &value);
 
 public slots:
     //transferring files to users
     void transferBegin();
+
+    //handling the end of the transfer
+    void transferEnd(int node);
+
+    //handle the update of the window
+    void handleProcessEvents();
+
+    void handleProgBarModifying(int value, int node);
+    void handleProgBarModifying();
+
+    void handleRemTimeModifying(QString value, int node);
+    void handleRemTimeModifying(QString value);
 
 protected:
     //this method has to be rewritten because we don't want to close the application when
@@ -49,20 +95,36 @@ private:
 
     vector<string> files;
 
-    QVBoxLayout *centralLayout;
+    QVBoxLayout *verticalLayout;
+
+    //button to show the widgets for each user
+    QPushButton *singleTransfers;
 
     QProgressBar *progressBar;
-
     QLabel *remainingTime;
-
     QLabel *usersLabel;
-
     QPushButton *cancelOperation;
 
-    //this flagis useful when we want to stop the operation->
-    //nothing will be done after this flag is set
-    int flag;
+    //widget per single transfer
+    QList<QProgressBar*> progressBarPerSingleTransfer;
+    QList<QLabel*> remainingTimePerSingleTransfer;
+    QList<QLabel*> usersLabelPerSingleTransfer;
+    QList<QPushButton*> cancelOperationPerSingleTransfer;
 
+    //this vector of flags is used to understand whether a thread has terminated or not
+    std::vector<int> flags;
+
+    //boolean to handle if widgets for each user are visible or not
+    bool visible;
+
+    //this flag will determine if the window has to be closed (hidden)
+    int flagToQuit;
+
+    //listof threads for each sending process
+    QList<WorkerThread*> sendingThreads;
+
+    QMutex mBar;
+    QMutex mTime;
 };
 
 #endif // TRANSFER_H
