@@ -11,6 +11,9 @@ UsersWindow::UsersWindow(vector<string> files, shared_ptr<Users> users, QWidget 
 
     this->files=files;
 
+    this->x_lastElement=0;
+    this->y_lastElement=0;
+
     this->centralLayout=new QGridLayout(this);
 
     ui->setupUi(this);
@@ -21,7 +24,8 @@ UsersWindow::UsersWindow(vector<string> files, shared_ptr<Users> users, QWidget 
     //finding the number of users to be showed
     int num_widget=u.get()->users.size();
 
-
+    if(num_widget!=0)
+    {
     //finding the right number of rows (if the division has a remainder!=0 the number of rows has to be increased by 1)
     if(num_widget%NUM_COL==0)
     {
@@ -46,6 +50,8 @@ UsersWindow::UsersWindow(vector<string> files, shared_ptr<Users> users, QWidget 
             //trasferring the icon within the label
             QLabel *pixmapLabels=createPixMapLabels(p);
 
+            icons.push_back(pixmapLabels);
+
             //username
             string us=iter->second.get()->getUsername();
             //IP
@@ -62,35 +68,40 @@ UsersWindow::UsersWindow(vector<string> files, shared_ptr<Users> users, QWidget 
 
             usersMap.insert(us,ip);
 
-            centralLayout->addWidget(pixmapLabels,i,j,1,1,Qt::Alignment());
+            QVBoxLayout *l=new QVBoxLayout;
 
-            //NB the checkbox is added the row after the current one
-            centralLayout->addWidget(username,i+1,j,1,1,Qt::Alignment());
+            //every widget is part of a subLayout which will be added to the fundamental one later
+            l->addWidget(pixmapLabels);
+            l->addWidget(username);
+
+            allLayouts.push_back(l);
+
+            centralLayout->addLayout(l,i,j,1,1,Qt::Alignment());
 
             //this to control if we have to stop adding widgets because there are no more users
             n++;
 
             iter++;
+            y_lastElement++;
         }
         iter--;
 
         i++;
-        i++;
+        x_lastElement++;
+    }
     }
 
-
-    this->t=new Transfer(this->files, this);
-    //connecting the share button to starting tranfer
-    connect(this, SIGNAL(startTransfer()), this->t, SLOT(transferBegin()));
-
     //creating the button that will be used to determine who to share file with
-    QPushButton *buttonToShare=new QPushButton("Share", this);
+    buttonToShare=new QPushButton("Share", this);
 
     buttonToShare->setMaximumWidth(140);
     buttonToShare->setMinimumWidth(60);
 
+    buttonLayout=new QVBoxLayout;
+    buttonLayout->addWidget(buttonToShare);
+
     //button added to the layout at the bottom of the window
-    centralLayout->addWidget(buttonToShare, i,NUM_COL-1,1,1,Qt::Alignment());
+    centralLayout->addLayout(buttonLayout, x_lastElement,NUM_COL-1,1,1,Qt::Alignment());
 
     //connecting the button to the function it has to implement
     connect(buttonToShare,&QPushButton::clicked, [this](){
@@ -117,12 +128,28 @@ UsersWindow::UsersWindow(vector<string> files, shared_ptr<Users> users, QWidget 
 
                 cout<<" and this is its ip "<<ip<<endl;
 
-                //now i save the user in the selected_users list
-                shared_ptr<User> u=this->u.get()->users.at(ip);
+                try
+                {
+                    //now i save the user in the selected_users list
+                    shared_ptr<User> u=this->u.get()->users.at(ip);
 
-                selected_users.push_back(u);
+                    selected_users.push_back(u);
+                }
+                catch(...)
+                {
+                    QString warning="User ";
+                    warning.append(QString::fromStdString(s));
+                    warning.append(" no longer active");
+                    QMessageBox::warning(this, "Warning", warning);
+                }
+
             }
 
+        }
+
+        if(selected_users.size()==0)
+        {
+            flag=0;
         }
 
         cout<<"here i am sharing"<<endl;
@@ -136,9 +163,9 @@ UsersWindow::UsersWindow(vector<string> files, shared_ptr<Users> users, QWidget 
             //now i have to close the window without stopping the applications
             hide();
 
-            //here it opens the window with the trasfers
-            //ONLY PASS THE LIST OF USERS
-            t->setSelected_users(this->selected_users);
+            //here it opens the window with the trasfers after connecting signal and slot
+            Transfer *t=new Transfer(this->selected_users,this->files, 0);
+            connect(this, SIGNAL(startTransfer()), t, SLOT(transferBegin()));
 
             t->show();
 
@@ -148,10 +175,16 @@ UsersWindow::UsersWindow(vector<string> files, shared_ptr<Users> users, QWidget 
 
     this->setLayout(centralLayout);
 
+
+    connect(this->u.get(), SIGNAL(modifiedUsersMap(string,int,bool)),this, SLOT(handleNewOrRemovedUsers(string,int,bool)));
+
+
 }
 
 UsersWindow::~UsersWindow()
 {
+    delete buttonToShare;
+    delete buttonLayout;
     delete centralLayout;
     delete ui;
 }
@@ -164,6 +197,119 @@ void UsersWindow::closeEvent(QCloseEvent *event)
     hide();
     event->ignore();
 
+}
+
+void UsersWindow::handleNewOrRemovedUsers(string whatsNeeded,int whichUser, bool state)
+{
+    (void) whichUser;
+
+    if(state)
+    {
+        //user added
+        cout<<"handle for adding users"<<endl;
+
+        string IP=whatsNeeded;
+
+        shared_ptr<User> currentUser=this->u->users.at(IP);
+
+        int flag=0;
+        int pos;
+        QListIterator<QCheckBox *> iter(this->allButtons);
+        while(iter.hasNext())
+        {
+            if(iter.next()->text().toStdString()==currentUser->getUsername())
+            {
+                flag=1;
+                break;
+            }
+            pos++;
+        }
+
+        if(flag==0)
+        {
+            QIcon p=currentUser->getThumbnail();
+
+            //trasferring the icon within the label
+            QLabel *pixmapLabels=createPixMapLabels(p);
+
+            icons.push_back(pixmapLabels);
+
+            //username
+            string us=currentUser->getUsername();
+            //IP
+            string ip=currentUser->getIP();
+
+            //creating the checkbox for its image
+            QCheckBox *username=new QCheckBox(QString::fromStdString(us), this);
+
+            username->setMinimumWidth(60);
+            username->setMaximumWidth(140);
+
+            //saving the checkbox (it will be used for the sharing function)
+            allButtons.push_back(username);
+
+            usersMap.insert(us,ip);
+
+            QVBoxLayout *l=new QVBoxLayout;
+
+            //adding each widget to a subLayout which will be added to the fundamental one
+            l->addWidget(pixmapLabels);
+            l->addWidget(username);
+
+            allLayouts.push_back(l);
+
+            if(y_lastElement>=NUM_COL)
+            {
+                x_lastElement++;
+                y_lastElement=0;
+            }
+
+            centralLayout->removeItem(buttonLayout);
+            centralLayout->addLayout(this->buttonLayout,x_lastElement+1, NUM_COL-1,1,1,Qt::Alignment());
+
+            centralLayout->addLayout(l,x_lastElement,y_lastElement, 1,1,Qt::Alignment());
+            y_lastElement++;
+
+            this->update();
+            this->adjustSize();
+        }
+        else
+        {
+            //if the user was previously on the form(so I only have all of its features disabled)
+            //I only need to enable everything (do not need to create another pair of widgets)
+            icons.at(pos)->setEnabled(true);
+
+            allButtons.at(pos)->setEnabled(true);
+
+            this->update();
+        }
+    }
+    else
+    {
+        //user removed
+        cout<<"handle for removing users"<<endl;
+
+        string username=whatsNeeded;
+
+        //I find the position of the current user over my layout
+        int pos=0;
+        QListIterator<QCheckBox *> iter(this->allButtons);
+        while(iter.hasNext())
+        {
+            if(iter.next()->text().toStdString()==username)
+            {
+                break;
+            }
+            pos++;
+        }
+
+        //when I find the position I disable everything within it
+        icons.at(pos)->setEnabled(false);
+
+        allButtons.at(pos)->setEnabled(false);
+
+        this->update();
+    }
 }
 
 QLabel *UsersWindow::createPixMapLabels(QIcon p)

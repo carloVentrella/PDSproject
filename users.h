@@ -5,11 +5,14 @@
 #include<map>
 #include <memory>
 #include <user.h>
+#include <QObject>
 
 using namespace std;
 
-class Users
+class Users: public QObject
 {
+    Q_OBJECT
+
 public:
     Users();
     void addUser(shared_ptr<User>);
@@ -20,6 +23,9 @@ public:
     void garbageCollection();
 
     map<string, shared_ptr<User>> users;
+
+signals:
+    void modifiedUsersMap(string whatsNeeded,int whichUser, bool state);
 
 private:
     mutex mtx;

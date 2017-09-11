@@ -36,6 +36,13 @@ protected:
     //the window is closed
     void closeEvent(QCloseEvent *event) override;
 
+public slots:
+    //whichUser: which user has been removed or added
+    //state: true->added
+    //       false->removed
+    void handleNewOrRemovedUsers(string whatsNeeded, int whichUser, bool state);
+
+
 signals:
     //this function begins the trasfer
     void startTransfer();
@@ -45,10 +52,6 @@ private:
 
     //this function creates the label associated with the icon
     QLabel* createPixMapLabels(QIcon p);
-
-
-    //here it is the transferring window
-    Transfer *t;
 
     //this contains the map of users that has to be shown in the window
     shared_ptr<Users> u;
@@ -66,6 +69,11 @@ private:
     const int NUM_COL=4;
     int NUM_ROWS;
 
+    //parameters of the last element added
+    int x_lastElement;
+    int y_lastElement;
+
+    QList<QVBoxLayout*> allLayouts;
 
     //this is the layout for the window that contains labels, checkbox
     //and the final button
@@ -73,6 +81,13 @@ private:
 
     //this is the list of checkbox
     QList<QCheckBox *> allButtons;
+
+    //this is the list of labels with icons
+    QList<QLabel*> icons;
+
+    //button to share
+    QPushButton *buttonToShare;
+    QVBoxLayout *buttonLayout;
 
 };
 

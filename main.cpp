@@ -45,12 +45,19 @@ int main(int argc, char *argv[])
     // It sends and receives advertisements
     discovery scout(groupAddress,port, users);
 
-//TESTING USERWINDOW (TO BE DELETED)
+    //TESTING USERWINDOW (TO BE DELETED)
 
     string image=":/thumbnails/10.png";
     string image2=":/thumbnails/8.png";
     string image3=":/thumbnails/6.png";
     string image4=":/thumbnails/4.png";
+    string image=":/thumbnails/t7.png";
+
+    //list of files to test
+    vector<string> files;
+    files.push_back("file1");
+    files.push_back("file2");
+    files.push_back("file3");
 
     shared_ptr<User> us(new User());
     us.get()->setUsername("assuntap");
@@ -76,15 +83,10 @@ int main(int argc, char *argv[])
     us4.get()->setThumbnail(QIcon(image4.c_str()));
     users.get()->addUser(us4);
 
-    //list of files to test
-    vector<string> files;
-    files.push_back("file1");
-    files.push_back("file2");
-    files.push_back("file3");
+    UsersWindow *u=new UsersWindow(files, users,0);
 
-    UsersWindow u(files, users,0);
-    u.show();
-//END TESTING (TO BE DELETED)
+    u->show();
+    //END TESTING (TO BE DELETED)
 
     return a.exec();
 }

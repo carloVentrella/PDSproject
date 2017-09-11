@@ -35,7 +35,8 @@ SOURCES += main.cpp\
     settingswindow.cpp \
     choosingdirectorywindow.cpp \
     userswindow.cpp \
-    transfer.cpp
+    transfer.cpp \
+    workerthread.cpp
 
 HEADERS  += \
     user.h \
@@ -48,7 +49,8 @@ HEADERS  += \
     settingswindow.h \
     choosingdirectorywindow.h \
     userswindow.h \
-    transfer.h
+    transfer.h \
+    workerthread.h
 
 FORMS    += \
     settingswindow.ui \
