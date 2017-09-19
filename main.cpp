@@ -19,6 +19,9 @@
 int new_selection(void);
 void createFileList(QFileInfoList FileInfoList);
 
+// list of neighbours
+shared_ptr<Users> users;
+// list of selected files
 QList<std::shared_ptr<QFile>> fileList;
 
 void signal_handler(int sig_no){
@@ -45,8 +48,7 @@ int main(int argc, char *argv[])
     QHostAddress groupAddress("239.255.43.21");
     quint16 port(45454);
 
-    // list of neighbours
-    shared_ptr<Users> users(new Users());
+    users = std::make_shared<Users>();
 
     // The scout is in charge of handling the user list.
     // It sends and receives advertisements
@@ -105,7 +107,6 @@ int main(int argc, char *argv[])
 
     Server tcpServer(serverAddr, serverPort);
     tcpServer.start();
-
 
     QString path = dirtest.absolutePath();
 
@@ -185,10 +186,10 @@ int new_selection(void){
             qDebug("No file to send.");
         }
 
-        // TODO
-        // Create UsersWindow here ...
-
         file.close();
+
+        UsersWindow *u=new UsersWindow(fileList, users,0);
+        u->show();
 
         return 1;
 
