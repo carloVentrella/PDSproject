@@ -175,15 +175,23 @@ int new_selection(void){
         QFileInfoList files;
 
         for (string s : selected){
-                cout << s << endl;
-                QFileInfo fileInfo(QString::fromStdString(s));
+
+                QString path = QString::fromStdString(s);
+
+                // remove "file://"
+                path = path.mid(7,-1);
+                qDebug() << path;
+
+                QFileInfo fileInfo(path);
                 files.append(fileInfo);
         }
 
+        // Create file/dir tree
         createFileList(files);
 
         if( fileList.size() == 0){
             qDebug("No file to send.");
+            return 0;
         }
 
         file.close();
