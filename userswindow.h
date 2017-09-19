@@ -28,7 +28,7 @@ class UsersWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit UsersWindow(vector<string> files, shared_ptr<Users> users, QWidget *parent = 0);
+    explicit UsersWindow(QList<std::shared_ptr<QFile>>, shared_ptr<Users> users, QWidget *parent = 0);
     ~UsersWindow();
 
 protected:
@@ -57,7 +57,7 @@ private:
     shared_ptr<Users> u;
 
     //vector of selected files
-    vector<string> files;
+    QList< std::shared_ptr<QFile>> files;
 
     //this is necessary to find the IP from the username
     QMap<string,string> usersMap;

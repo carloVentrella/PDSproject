@@ -4,6 +4,7 @@
 #include <QSettings>
 #include <QVariant>
 #include <QString>
+#include <QHostAddress>
 #include "user.h"
 
 using namespace std;
@@ -18,6 +19,10 @@ private:
     User currentUser;
     int multicastPort;
 
+    // TCP server config
+    QHostAddress TCPServerAddr;
+    qint16 TCPServerPort;
+
     Settings();
 
     Settings(Settings const&);              // Don't Implement
@@ -31,6 +36,10 @@ public:
     void setDestination(const string &value);
     bool getFromAll() const;
     void setFromAll(bool value);
+    QHostAddress getTCPServerAddr() const;
+    void setTCPServerAddr(const string &ip);
+    qint16 getTCPServerPort() const;
+    void setTCPServerPort(const qint16 &port);
     bool getOn() const;
     void setOn(bool value);
 

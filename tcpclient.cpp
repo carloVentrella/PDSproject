@@ -1,9 +1,4 @@
-#include "workerthread.h"
-#include "transfer.h"
-
-#include <QtCore>
-#include <iostream>
-#include <QHostAddress>
+#include "tcpclient.h"
 #include <QTcpSocket>
 #include <QByteArray>
 #include <QDataStream>
@@ -12,39 +7,56 @@
 #include <QFileInfo>
 #include <QFileInfoList>
 #include <memory>
-#include <settings.h>
-
-WorkerThread::WorkerThread(QObject *parent, Transfer *t, int position) : QThread(parent)
-{
-    this->t=t;
-    this->position=position;
-    this->user=t->getSelected_users().at(position);
-    this->files=t->getFiles();
 
 
-    this->serverAddr = Settings::getInstance().getTCPServerAddr();
-    this->serverPort = Settings::getInstance().getTCPServerPort();
+void Client::createFileList(QFileInfoList FileInfoList){
+
+    for (QFileInfo fileInfo : FileInfoList){
+
+        if (fileInfo.fileName() == "." | fileInfo.fileName() == "..")
+            continue;
+
+        // qDebug() << "Filename : " << fileInfo.absoluteFilePath() ;
+        // qDebug() << "   Exists? " << fileInfo.exists();
+        // qDebug() << "   Is dir?" << fileInfo.isDir();
+        // qDebug() << "   Is symlink? " << fileInfo.isSymLink();
+        // qDebug() << "   Read-only? " << fileInfo.isReadable();
+
+        if (!fileInfo.exists() | !fileInfo.isReadable())
+            continue;
+
+        fileList.push_back( std::shared_ptr<QFile>( new QFile(fileInfo.absoluteFilePath())) );
+
+        if (fileInfo.isDir()){
+            // Dir:  add it to the list and recur on it
+            QDir dir(fileInfo.absoluteFilePath());
+            createFileList(dir.entryInfoList());
+        }
+
+    }
 
 }
 
-WorkerThread::~WorkerThread()
+void Client::send()
 {
-   this->t=NULL;
-   this->user=NULL;
-}
+    QDir dirtest("/home/carloventrella/testTCP/folderTest/nesterFolder");
+    QString path = dirtest.absolutePath();
 
-void WorkerThread::run()
-{
-    emit processEvents();
+    QFileInfoList files;
+    QFileInfo fileInfo(path);
+    files.append(fileInfo);
+    createFileList(files);
 
-    // TODO remove
-    int hr = 100;
+    if( fileList.size() == 0){
+        qDebug("No file to send.");
+        return;
+    }
 
     QTcpSocket *socket = new QTcpSocket;
     // when the thread finishes deallocate its objects
     connect(socket, SIGNAL(disconnected()), socket, SLOT(deleteLater()));
 
-    socket->connectToHost(serverAddr, serverPort);
+    socket->connectToHost(m_host, m_port);
     socket->waitForConnected();
 
     if ( (socket->state() != QAbstractSocket::ConnectedState)) {
@@ -56,13 +68,13 @@ void WorkerThread::run()
     QString curdir;
     QString type;
     QString relativePath;
-    quint64 nFiles = files.size();
+    quint64 nFiles = fileList.size();
     quint64 filesSent = 0;
     qint64 written;
 
     qDebug () << "Ready to send " << nFiles << " items";
 
-    for (std::shared_ptr<QFile> file : files){
+    for (std::shared_ptr<QFile> file : fileList){
 
         // get fileInfo
         QFileInfo fileInfo(file->fileName());
@@ -173,32 +185,11 @@ void WorkerThread::run()
         }
 
         filesSent++;
-        double percentage(filesSent/(double)nFiles*100);
-
-        qDebug() << type << " sent. [" << percentage << "]";
-
-        //modifying the bar of the single user
-        emit progBarModifying(percentage,position);
-
-        //modifying the window
-        emit processEvents();
-
-        //modifying the remaining time for the single user
-        emit remTimeModifying(QString::fromStdString(std::to_string(hr).append(" seconds left").c_str()), position);
-
-        //modifying the general progress bar
-        emit progBarModifying();
-
-        emit processEvents();
-
-        //modifying the general remaining time
-        emit remTimeModifying(QString::fromStdString(to_string(100-this->t->getProgressBar()->value()).append(" seconds left").c_str()));
-
-        emit processEvents();
+        qDebug() << type << " sent. [" << filesSent/(double)nFiles*100 << "]";
 
     }
 
-    //handle the stop of the transfer in a clean way
+    return;
 
-    emit finished(position);
+
 }

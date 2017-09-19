@@ -1,6 +1,6 @@
 #include "settingswindow.h"
 #include "settings.h"
-
+#include "tcpserver.h"
 #include "userswindow.h"
 
 
@@ -12,8 +12,14 @@
 #include <string>
 #include <discovery.h>
 #include <QHostAddress>
+#include <QDir>
+#include <QFileInfo>
+#include <QFileInfoList>
 
 int new_selection(void);
+void createFileList(QFileInfoList FileInfoList);
+
+QList<std::shared_ptr<QFile>> fileList;
 
 void signal_handler(int sig_no){
 
@@ -26,6 +32,7 @@ chrono::seconds User::MAX_SILENT = chrono::seconds(10);
 
 int main(int argc, char *argv[])
 {
+
     QApplication a(argc, argv);
 
     // install signal handler
@@ -41,34 +48,81 @@ int main(int argc, char *argv[])
     // list of neighbours
     shared_ptr<Users> users(new Users());
 
-    // The scout is charge of handling the user list.
+    // The scout is in charge of handling the user list.
     // It sends and receives advertisements
     discovery scout(groupAddress,port, users);
 
-    //TESTING USERWINDOW (TO BE DELETED)
+    //TESTING USERWINDOW (TO BE DELETED) 
 
-    string image=":/thumbnails/10.png";
-    string image2=":/thumbnails/8.png";
+    QHostAddress serverAddr;
+    qint16 serverPort;
+
+
+    QDir dirtest;
+
+    if ( argc > 1 && atoi(argv[1]) == 1){
+
+        // Config 1, RECEIVER
+
+        string image2=":/thumbnails/8.png";
+        dirtest.setPath("--PATH FILE/DIR DA INVIARE");
+
+        shared_ptr<User> us(new User());
+        us.get()->setUsername("assuntap");
+        us.get()->setIP("127.0.0.1");
+        us.get()->setThumbnail(QIcon(image2.c_str()));
+        users.get()->addUser(us);
+
+        // Example paramenters, should be read from config
+        serverAddr.setAddress("127.0.0.1");
+        serverPort = 5555;
+
+        Settings::getInstance().setTCPServerAddr("127.0.0.1");
+        Settings::getInstance().setTCPServerPort(5556);
+
+
+    }else{
+
+        // Config 2, SENDER
+
+        string image=":/thumbnails/10.png";
+        dirtest.setPath("--PATH FILE/DIR DA INVIARE");
+
+        shared_ptr<User> us1(new User());
+        us1.get()->setUsername("charlesv");
+        us1.get()->setIP("localhost");
+        us1.get()->setThumbnail(QIcon(image.c_str()));
+        users.get()->addUser(us1);
+
+        // Example paramenters, should be read from config
+        serverAddr.setAddress("127.0.0.1");
+        serverPort = 5556;
+
+        Settings::getInstance().setTCPServerAddr("127.0.0.1");
+        Settings::getInstance().setTCPServerPort(5555);
+
+    }
+
+    Server tcpServer(serverAddr, serverPort);
+    tcpServer.start();
+
+
+    QString path = dirtest.absolutePath();
+
+    QFileInfoList files;
+    QFileInfo fileInfo(path);
+    files.append(fileInfo);
+    createFileList(files);
+
     string image3=":/thumbnails/6.png";
     string image4=":/thumbnails/4.png";
 
     //list of files to test
-    vector<string> files;
-    files.push_back("file1");
-    files.push_back("file2");
-    files.push_back("file3");
+    //vector<string> files;
+    //files.push_back("file1");
+    //files.push_back("file2");
+    //files.push_back("file3");
 
-    shared_ptr<User> us(new User());
-    us.get()->setUsername("assuntap");
-    us.get()->setIP("1");
-    us.get()->setThumbnail(QIcon(image2.c_str()));
-    users.get()->addUser(us);
-
-    shared_ptr<User> us1(new User());
-    us1.get()->setUsername("charlesv");
-    us1.get()->setIP("2");
-    us1.get()->setThumbnail(QIcon(image.c_str()));
-    users.get()->addUser(us1);
 
     shared_ptr<User> us3(new User());
     us3.get()->setUsername("Prof2");
@@ -82,7 +136,7 @@ int main(int argc, char *argv[])
     us4.get()->setThumbnail(QIcon(image4.c_str()));
     users.get()->addUser(us4);
 
-    UsersWindow *u=new UsersWindow(files, users,0);
+    UsersWindow *u=new UsersWindow(fileList, users,0);
 
     u->show();
     //END TESTING (TO BE DELETED)
@@ -117,13 +171,54 @@ int new_selection(void){
                 selected.push_back(move(tmp));
         }
 
-        for (string s : selected)
-                cout << s << endl;
+        QFileInfoList files;
 
-        // Do something ...
+        for (string s : selected){
+                cout << s << endl;
+                QFileInfo fileInfo(QString::fromStdString(s));
+                files.append(fileInfo);
+        }
+
+        createFileList(files);
+
+        if( fileList.size() == 0){
+            qDebug("No file to send.");
+        }
+
+        // TODO
+        // Create UsersWindow here ...
 
         file.close();
 
         return 1;
+
+}
+
+
+void createFileList(QFileInfoList FileInfoList){
+
+    for (QFileInfo fileInfo : FileInfoList){
+
+        if (fileInfo.fileName() == "." | fileInfo.fileName() == "..")
+            continue;
+
+        // qDebug() << "Filename : " << fileInfo.absoluteFilePath() ;
+        // qDebug() << "   Exists? " << fileInfo.exists();
+        // qDebug() << "   Is dir?" << fileInfo.isDir();
+        // qDebug() << "   Is symlink? " << fileInfo.isSymLink();
+        // qDebug() << "   Read-only? " << fileInfo.isReadable();
+
+        if (!fileInfo.exists() | !fileInfo.isReadable())
+            continue;
+
+        fileList.push_back( std::shared_ptr<QFile>( new QFile(fileInfo.absoluteFilePath())) );
+
+        if (fileInfo.isDir()){
+            // Dir:  add it to the list and recur on it
+            QDir dir(fileInfo.absoluteFilePath());
+            createFileList(dir.entryInfoList());
+        }
+
+    }
 
 }

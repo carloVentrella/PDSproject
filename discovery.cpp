@@ -100,7 +100,6 @@ void discovery::readyRead()
 
         qDebug("Message from: [%s,%d]", ip.c_str(),senderPort );
 
-
         if ( msg == "Ready" ){
 
             if (this->users->contains(ip)){

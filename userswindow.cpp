@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-UsersWindow::UsersWindow(vector<string> files, shared_ptr<Users> users, QWidget *parent) :
+UsersWindow::UsersWindow(QList<std::shared_ptr<QFile>> files, shared_ptr<Users> users, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::UsersWindow)
 {

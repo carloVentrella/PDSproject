@@ -5,7 +5,7 @@
 #include <QApplication>
 #include <QDesktopWidget>
 
-Transfer::Transfer(QList<shared_ptr<User> > selected_users, vector<string> files, QWidget *parent) :
+Transfer::Transfer(QList<shared_ptr<User> > selected_users, QList< std::shared_ptr<QFile>> files, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Transfer)
 {
@@ -271,12 +271,12 @@ void Transfer::closeEvent(QCloseEvent *event)
 
 }
 
-vector<string> Transfer::getFiles() const
+QList<std::shared_ptr<QFile>> Transfer::getFiles() const
 {
     return files;
 }
 
-void Transfer::setFiles(const vector<string> &value)
+void Transfer::setFiles(const QList<std::shared_ptr<QFile>> &value)
 {
     files = value;
 }

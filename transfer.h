@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <string>
+#include <QFile>
 #include <QList>
 #include <QListIterator>
 #include <QVBoxLayout>
@@ -31,11 +32,11 @@ class Transfer : public QDialog
     Q_OBJECT
 
 public:
-    explicit Transfer(QList<shared_ptr<User>> selected_users,vector<string> files, QWidget *parent = 0);
+    explicit Transfer(QList<shared_ptr<User>> selected_users,QList<std::shared_ptr<QFile>> files, QWidget *parent = 0);
     ~Transfer();
 
     //getter and setter for the users list
-    QList<shared_ptr<User> > getSelected_users() const;
+    QList<shared_ptr<User>> getSelected_users() const;
     void setSelected_users(const QList<shared_ptr<User> > &value);
 
     //this function has to be done after the terination of a thread, if it terminates before work is over
@@ -63,8 +64,8 @@ public:
     }
 
     //getter and setter for the vector of files
-    vector<string> getFiles() const;
-    void setFiles(const vector<string> &value);
+    QList<std::shared_ptr<QFile>> getFiles() const;
+    void setFiles(const QList<std::shared_ptr<QFile>> &value);
 
 public slots:
     //transferring files to users
@@ -93,7 +94,7 @@ private:
 
     QList<shared_ptr<User>> selected_users;
 
-    vector<string> files;
+    QList< std::shared_ptr<QFile>> files;
 
     QVBoxLayout *verticalLayout;
 

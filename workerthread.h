@@ -6,6 +6,10 @@
 
 #include "user.h"
 #include <memory>
+#include <QFile>
+#include <QList>
+#include <QHostAddress>
+
 class Transfer;
 
 
@@ -17,7 +21,10 @@ private:
     Transfer *t;
     int position; //i need to know which bar and label i have to modify
     shared_ptr<User> user; //user related to this thread
-    vector<string> files;  //files the thread has to send
+    QList<std::shared_ptr<QFile>> files;  //files the thread has to send
+
+    QHostAddress serverAddr;
+    qint16 serverPort;
 
 public:
     explicit WorkerThread(QObject *parent = 0, Transfer *t=0, int position=0);

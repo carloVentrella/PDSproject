@@ -36,7 +36,10 @@ SOURCES += main.cpp\
     choosingdirectorywindow.cpp \
     userswindow.cpp \
     transfer.cpp \
-    workerthread.cpp
+    workerthread.cpp \
+    socketthread.cpp \
+    tcpserver.cpp \
+    tcpclient.cpp
 
 HEADERS  += \
     user.h \
@@ -50,7 +53,10 @@ HEADERS  += \
     choosingdirectorywindow.h \
     userswindow.h \
     transfer.h \
-    workerthread.h
+    workerthread.h \
+    socketthread.h \
+    tcpserver.h \
+    tcpclient.h
 
 FORMS    += \
     settingswindow.ui \

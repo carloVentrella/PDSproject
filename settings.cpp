@@ -49,7 +49,7 @@ void Settings::LoadSettings()
     //it is necessary to discover the username
     std::string user=qgetenv("USER").toStdString();
     std::string path="/home/";
-    std::string thumb=":/thumbnails/t7.png";
+    std::string thumb=":/thumbnails/3.png";
     path.append(user);
 
 
@@ -128,4 +128,24 @@ string Settings::getCompanyName() const
 void Settings::setCompanyName(const string &value)
 {
     companyName = value;
+}
+
+QHostAddress Settings::getTCPServerAddr() const
+{
+    return TCPServerAddr;
+}
+
+void Settings::setTCPServerAddr(const string &ip)
+{
+    TCPServerAddr = QHostAddress( QString::fromStdString(ip) );
+}
+
+qint16 Settings::getTCPServerPort() const
+{
+    return TCPServerPort;
+}
+
+void Settings::setTCPServerPort(const qint16 &port)
+{
+    TCPServerPort = port;
 }
