@@ -23,9 +23,10 @@ void Users::removeUser(const string &ip){
     string username;
     for(map<string,shared_ptr<User>>::iterator iter=users.begin();iter!=users.end();iter++)
     {
-        if(iter->first==ip)
-           {username=iter->second->getUsername();
-            break; }
+        if(iter->first==ip){
+            username=iter->second->getUsername();
+            break;
+        }
         pos++;
     }
     users.erase(ip);
@@ -49,14 +50,33 @@ void Users::garbageCollection(){
 
     std::cout << "Garbage collection started" << std::endl;
 
-    for(  auto const &entry : users ){
+    mtx.lock();
+    int pos=0;
+    string username;
+    string ip;
 
-        shared_ptr<User> u = (entry.second);
+    std::cout << "Size: " << users.size() << std::endl;
 
-        if (!u->isStillAlive())
-            removeUser(u->getIP());
+    for(map<string,shared_ptr<User>>::iterator iter=users.begin();iter!=users.end();)
+    {
+        if(!iter->second->isStillAlive()){
+            username=iter->second->getUsername();
+            ip=iter->second->getIP();
+            iter = users.erase(iter);
+            emit modifiedUsersMap(username, pos,false);
+        }else{
+            ++iter;
+        }
+
+        pos++;
 
     }
+
+    mtx.unlock();
+
+    std::cout << "User ["<< username <<"] removed" << std::endl;
+
+    std::cout << "Garbage collection finished" << std::endl;
 
 }
 
