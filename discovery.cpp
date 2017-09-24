@@ -128,9 +128,6 @@ void discovery::readyRead()
            if (!thumb.isNull())
            {
                user->setThumbnail(thumb);
-
-               //this signal has to be emitted to update the userswindow
-               emit modifiedThumb(thumb, user->getUsername());
            }
            this->users->addUser(user);
            qDebug("New user added: [%s]", username.c_str());
