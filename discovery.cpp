@@ -108,7 +108,13 @@ void discovery::readyRead()
 
                 // update thumbnail if present
                 if (!thumb.isNull())
+                {
                     user->setThumbnail(thumb);
+
+                    //this signal has to be emitted to update the userswindow
+                    emit modifiedThumb(thumb, user->getUsername());
+                }
+
                 // update user lifetime
                 user->stillAlive();
                 return;
@@ -120,8 +126,12 @@ void discovery::readyRead()
            user->setUsername(username);
            // update thumbnail if present
            if (!thumb.isNull())
+           {
                user->setThumbnail(thumb);
 
+               //this signal has to be emitted to update the userswindow
+               emit modifiedThumb(thumb, user->getUsername());
+           }
            this->users->addUser(user);
            qDebug("New user added: [%s]", username.c_str());
 

@@ -6,6 +6,7 @@
 #include <QString>
 #include <QHostAddress>
 #include "user.h"
+#include <QIcon>
 
 using namespace std;
 
@@ -18,6 +19,9 @@ private:
     string root;
     User currentUser;
     int multicastPort;
+
+    //this variable is needed to find the path of the user's thumbnail
+    QString thumbPath;
 
     // TCP server config
     QHostAddress TCPServerAddr;
@@ -67,6 +71,10 @@ public:
     void setCurrentUser(const User &value);
     int getMulticastPort() const;
     void setMulticastPort(const int &value);
+
+    //methods to set and get the user thumbnail
+    QString getThumbPath() const;
+    void setThumbPath(const QString &value);
 };
 
 #endif // SETTINGS_H

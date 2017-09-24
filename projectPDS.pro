@@ -39,7 +39,8 @@ SOURCES += main.cpp\
     workerthread.cpp \
     socketthread.cpp \
     tcpserver.cpp \
-    tcpclient.cpp
+    tcpclient.cpp \
+    choosingiconwindow.cpp
 
 HEADERS  += \
     user.h \
@@ -56,13 +57,15 @@ HEADERS  += \
     workerthread.h \
     socketthread.h \
     tcpserver.h \
-    tcpclient.h
+    tcpclient.h \
+    choosingiconwindow.h
 
 FORMS    += \
     settingswindow.ui \
     choosingdirectorywindow.ui \
     userswindow.ui \
-    transfer.ui
+    transfer.ui \
+    choosingiconwindow.ui
 
 RESOURCES += \
     res.qrc

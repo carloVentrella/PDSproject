@@ -5,6 +5,7 @@
 
 #include "users.h"
 #include "transfer.h"
+#include "discovery.h"
 
 #include <QCheckBox>
 #include <QGridLayout>
@@ -28,7 +29,7 @@ class UsersWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit UsersWindow(QList<std::shared_ptr<QFile>>, shared_ptr<Users> users, QWidget *parent = 0);
+    explicit UsersWindow(shared_ptr<discovery> scout, QList<std::shared_ptr<QFile>>, shared_ptr<Users> users, QWidget *parent = 0);
     ~UsersWindow();
 
 protected:
@@ -42,6 +43,7 @@ public slots:
     //       false->removed
     void handleNewOrRemovedUsers(string whatsNeeded, int whichUser, bool state);
 
+    void handleModThumb(const QIcon &value, string username);
 
 signals:
     //this function begins the trasfer
@@ -89,6 +91,8 @@ private:
     QPushButton *buttonToShare;
     QVBoxLayout *buttonLayout;
 
+    //this scout will be able to handle when informations about users change
+    shared_ptr<discovery> scout;
 };
 
 #endif // USERSWINDOW_H

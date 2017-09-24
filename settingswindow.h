@@ -4,6 +4,7 @@
 #include <QDialog>
 
 #include "choosingdirectorywindow.h"
+#include "choosingiconwindow.h"
 
 #include <QWidget>
 #include <QSystemTrayIcon>
@@ -39,6 +40,9 @@ public:
 public slots:
     void setDestination(string destination);
 
+    //if the user selects a new icon, settings have to be rewritten
+    void setIconChanged(QString icon);
+
 protected:
     void closeEvent(QCloseEvent *event) override;
 
@@ -54,6 +58,8 @@ private slots:
     void on_fromAllComboBox_currentIndexChanged(const QString &arg1);
 
 
+    void on_iconButton_clicked();
+
 private:
 
     //to create actions that will be performed when the toolbar is used
@@ -65,6 +71,8 @@ private:
     Ui::SettingsWindow *ui;
 
     ChoosingDirectoryWindow *s;
+
+    ChoosingIconWindow *i;
 
     QSystemTrayIcon *mSystemTrayIcon;
     QMenu *trayIconMenu;

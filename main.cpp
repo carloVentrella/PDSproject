@@ -2,6 +2,7 @@
 #include "settings.h"
 #include "tcpserver.h"
 #include "userswindow.h"
+#include "discovery.h"
 
 
 #include <QApplication>
@@ -10,7 +11,6 @@
 #include <fstream>
 #include <vector>
 #include <string>
-#include <discovery.h>
 #include <QHostAddress>
 #include <QDir>
 #include <QFileInfo>
@@ -33,6 +33,14 @@ void signal_handler(int sig_no){
 // Example paramenters, should be read from config
 chrono::seconds User::MAX_SILENT = chrono::seconds(10);
 
+// Example paramenters, should be read from config
+QHostAddress groupAddress("239.255.43.21");
+quint16 port(45454);
+
+// The scout is in charge of handling the user list.
+// It sends and receives advertisements
+shared_ptr<discovery> scout(new discovery(groupAddress,port, std::make_shared<Users>()));
+
 int main(int argc, char *argv[])
 {
 
@@ -45,14 +53,14 @@ int main(int argc, char *argv[])
     SettingsWindow s;
 
     // Example paramenters, should be read from config
-    QHostAddress groupAddress("239.255.43.21");
-    quint16 port(45454);
+    //QHostAddress groupAddress("239.255.43.21");
+    //quint16 port(45454);
 
     users = std::make_shared<Users>();
 
     // The scout is in charge of handling the user list.
     // It sends and receives advertisements
-    discovery scout(groupAddress,port, users);
+    //discovery scout(groupAddress,port, users);
 
     //TESTING USERWINDOW (TO BE DELETED) 
 
@@ -137,7 +145,7 @@ int main(int argc, char *argv[])
     us4.get()->setThumbnail(QIcon(image4.c_str()));
     users.get()->addUser(us4);
 
-    UsersWindow *u=new UsersWindow(fileList, users,0);
+    UsersWindow *u=new UsersWindow(scout,fileList, users,0);
 
     u->show();
     //END TESTING (TO BE DELETED)
@@ -145,7 +153,7 @@ int main(int argc, char *argv[])
     return a.exec();
 }
 
-int new_selection(void){
+int new_selection(void){    
 
         // read selected files
         // should be read from a config file
@@ -196,7 +204,7 @@ int new_selection(void){
 
         file.close();
 
-        UsersWindow *u=new UsersWindow(fileList, users,0);
+        UsersWindow *u=new UsersWindow(scout,fileList, users,0);
         u->show();
 
         return 1;

@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QUdpSocket>
+#include <QIcon>
 #include <QNetworkInterface>
 #include <QList>
 #include <users.h>
@@ -15,8 +16,10 @@ public:
     explicit discovery(QHostAddress addr, quint16 port, shared_ptr<Users> users, QObject *parent = 0);
     void sendMessage(QJsonObject);
 
+    discovery(const discovery& source);
 
 signals:
+    void modifiedThumb(const QIcon &value, string username);
 
 public slots:
     void readyRead();

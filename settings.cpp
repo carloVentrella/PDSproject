@@ -64,9 +64,11 @@ void Settings::LoadSettings()
 
     currentUser.setIP(settings.value("user/IP", "239.255.43.21").toString().toStdString());
     currentUser.setUsername(settings.value("user/username",QString::fromStdString(user)).toString().toStdString());
-    currentUser.setThumbnail(QIcon(thumb.c_str()));
+    currentUser.setThumbnail(QIcon(QString::fromStdString(thumb)));
     multicastPort=settings.value("discovery/multicastPort", 45454).toInt();
     //THUMBNAIL HERE !!!
+    thumbPath=settings.value("user/icon", QString::fromStdString(thumb.c_str())).toString();
+
     //MAXSILENT AND GARBAGE COLLECTOR TIMER
 }
 
@@ -103,6 +105,18 @@ void Settings::setMulticastPort(const int &value)
 {
     multicastPort = value;
     this->SaveSetting("discovery/multicastPort", value);
+}
+
+QString Settings::getThumbPath() const
+{
+    return thumbPath;
+}
+
+void Settings::setThumbPath(const QString &value)
+{
+    thumbPath = value;
+    this->SaveSetting("user/icon", value);
+    this->currentUser.setThumbnail(QIcon(value));
 }
 
 Settings::Settings()

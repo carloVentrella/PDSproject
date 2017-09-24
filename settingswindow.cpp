@@ -7,6 +7,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) :
     ui(new Ui::SettingsWindow)
 {
     this->s=new ChoosingDirectoryWindow(this);
+    this->i=new ChoosingIconWindow(this);
 
     ui->setupUi(this);
 
@@ -35,6 +36,9 @@ SettingsWindow::SettingsWindow(QWidget *parent) :
 
     this->setDefault();
 
+    //this signal is emitted only when the user effectively change the icon
+    connect(this->i, SIGNAL(iconChanged(QString)), this, SLOT(setIconChanged(QString)));
+
     createActions();
     createTrayIcon();
 
@@ -49,6 +53,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) :
 SettingsWindow::~SettingsWindow()
 {
     delete s;
+    delete i;
     delete showIconCheckBox;
     delete ui;
 }
@@ -78,6 +83,11 @@ void SettingsWindow::setDefault()
     }
 
     ui->destinationLabel->setText(QString::fromUtf8(destination.c_str()));
+
+    //initial label of the user for the icon
+    QString icon=Settings::getInstance().getThumbPath();
+    ui->iconLabel->setText(icon);
+
 }
 
 void SettingsWindow::setVisible(bool visible)
@@ -90,6 +100,12 @@ void SettingsWindow::setDestination(string destination)
 {
     Settings::getInstance().setDestination(destination);
     ui->destinationLabel->setText(QString::fromUtf8(Settings::getInstance().getDestination().c_str()));
+}
+
+void SettingsWindow::setIconChanged(QString icon)
+{
+    Settings::getInstance().setThumbPath(icon);
+    ui->iconLabel->setText(icon);
 }
 
 void SettingsWindow::closeEvent(QCloseEvent *event)
@@ -171,4 +187,9 @@ void SettingsWindow::on_fromAllComboBox_currentIndexChanged(const QString &arg1)
             ui->fromAllLabel->setText("ask user to confirm before download");
         }
     }
+}
+
+void SettingsWindow::on_iconButton_clicked()
+{
+    this->i->show();
 }

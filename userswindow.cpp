@@ -3,13 +3,15 @@
 
 #include <iostream>
 
-UsersWindow::UsersWindow(QList<std::shared_ptr<QFile>> files, shared_ptr<Users> users, QWidget *parent) :
+UsersWindow::UsersWindow(shared_ptr<discovery> scout, QList<std::shared_ptr<QFile>> files, shared_ptr<Users> users, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::UsersWindow)
 {
     this->u=users;
 
     this->files=files;
+
+    this->scout=scout;
 
     this->x_lastElement=0;
     this->y_lastElement=0;
@@ -82,13 +84,14 @@ UsersWindow::UsersWindow(QList<std::shared_ptr<QFile>> files, shared_ptr<Users> 
             n++;
 
             iter++;
-            y_lastElement++;
         }
         iter--;
 
         i++;
-        x_lastElement++;
     }
+
+    x_lastElement=i--;
+    y_lastElement=j;
     }
 
     //creating the button that will be used to determine who to share file with
@@ -179,6 +182,8 @@ UsersWindow::UsersWindow(QList<std::shared_ptr<QFile>> files, shared_ptr<Users> 
     connect(this->u.get(), SIGNAL(modifiedUsersMap(string,int,bool)),this, SLOT(handleNewOrRemovedUsers(string,int,bool)));
 
 
+    connect((this->scout.get()), &discovery::modifiedThumb, this, &UsersWindow::handleModThumb);
+
 }
 
 UsersWindow::~UsersWindow()
@@ -225,7 +230,7 @@ void UsersWindow::handleNewOrRemovedUsers(string whatsNeeded,int whichUser, bool
             pos++;
         }
 
-        if(flag==0)
+        if(flag==0)  //new user
         {
             QIcon p=currentUser->getThumbnail();
 
@@ -310,6 +315,31 @@ void UsersWindow::handleNewOrRemovedUsers(string whatsNeeded,int whichUser, bool
 
         this->update();
     }
+}
+
+void UsersWindow::handleModThumb(const QIcon &value, string username)
+{
+    //to find which label to update
+    QListIterator<QCheckBox *> iter(this->allButtons);
+    int pos=0;
+    while(iter.hasNext())
+    {
+        if(iter.next()->text().toStdString()==username)
+        {
+            break;
+        }
+        pos++;
+    }
+
+    //trasferring the icon within the label
+    QLabel *pixmapLabels=createPixMapLabels(value);
+
+    if(icons.at(pos)!=pixmapLabels)
+    {
+        //modifying the label
+        icons[pos]=pixmapLabels;
+    }
+    qApp->processEvents();
 }
 
 QLabel *UsersWindow::createPixMapLabels(QIcon p)
