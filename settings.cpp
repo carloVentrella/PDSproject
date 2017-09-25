@@ -66,6 +66,7 @@ void Settings::LoadSettings()
     currentUser.setUsername(settings.value("user/username",QString::fromStdString(user)).toString().toStdString());
     currentUser.setThumbnail(QIcon(QString::fromStdString(thumb)));
     multicastPort=settings.value("discovery/multicastPort", 45454).toInt();
+
     //THUMBNAIL HERE !!!
     thumbPath=settings.value("user/icon", QString::fromStdString(thumb.c_str())).toString();
 

@@ -46,8 +46,14 @@ UsersWindow::UsersWindow(shared_ptr<discovery> scout, QList<std::shared_ptr<QFil
     {
         for(j=0;j<NUM_COL && n<num_widget;j++)
         {
+            User* user=iter->second.get();
+            QIcon p;
             //getting the icon of the user
-            QIcon p=iter->second.get()->getThumbnail();
+            if(user->getThumbnail().isNull())
+                p=QIcon(":/thumbnails/3.png");
+            else
+                p=user->getThumbnail();
+
 
             //trasferring the icon within the label
             QLabel *pixmapLabels=createPixMapLabels(p);
@@ -55,9 +61,9 @@ UsersWindow::UsersWindow(shared_ptr<discovery> scout, QList<std::shared_ptr<QFil
             icons.push_back(pixmapLabels);
 
             //username
-            string us=iter->second.get()->getUsername();
+            string us=user->getUsername();
             //IP
-            string ip=iter->second.get()->getIP();
+            string ip=user->getIP();
 
             //creating the checkbox for its image
             QCheckBox *username=new QCheckBox(QString::fromStdString(us), this);
@@ -90,7 +96,8 @@ UsersWindow::UsersWindow(shared_ptr<discovery> scout, QList<std::shared_ptr<QFil
         i++;
     }
 
-    x_lastElement=i--;
+    i--;
+    x_lastElement=i;
     y_lastElement=j;
     }
 
@@ -104,7 +111,7 @@ UsersWindow::UsersWindow(shared_ptr<discovery> scout, QList<std::shared_ptr<QFil
     buttonLayout->addWidget(buttonToShare);
 
     //button added to the layout at the bottom of the window
-    centralLayout->addLayout(buttonLayout, x_lastElement,NUM_COL-1,1,1,Qt::Alignment());
+    centralLayout->addLayout(buttonLayout, x_lastElement+1,NUM_COL-1,1,1,Qt::Alignment());
 
     //connecting the button to the function it has to implement
     connect(buttonToShare,&QPushButton::clicked, [this](){
@@ -179,7 +186,7 @@ UsersWindow::UsersWindow(shared_ptr<discovery> scout, QList<std::shared_ptr<QFil
     this->setLayout(centralLayout);
 
 
-    connect(this->u.get(), SIGNAL(modifiedUsersMap(string,int,bool)),this, SLOT(handleNewOrRemovedUsers(string,int,bool)));
+    connect(this->u.get(), SIGNAL(modifiedUsersMap(string,bool)),this, SLOT(handleNewOrRemovedUsers(string,bool)));
 
 
     connect((this->scout.get()), &discovery::modifiedThumb, this, &UsersWindow::handleModThumb);
@@ -204,10 +211,8 @@ void UsersWindow::closeEvent(QCloseEvent *event)
 
 }
 
-void UsersWindow::handleNewOrRemovedUsers(string whatsNeeded,int whichUser, bool state)
+void UsersWindow::handleNewOrRemovedUsers(string whatsNeeded, bool state)
 {
-    (void) whichUser;
-
     if(state)
     {
         //user added
@@ -218,7 +223,7 @@ void UsersWindow::handleNewOrRemovedUsers(string whatsNeeded,int whichUser, bool
         shared_ptr<User> currentUser=this->u->users.at(IP);
 
         int flag=0;
-        int pos;
+        int pos=0;
         QListIterator<QCheckBox *> iter(this->allButtons);
         while(iter.hasNext())
         {
@@ -232,7 +237,12 @@ void UsersWindow::handleNewOrRemovedUsers(string whatsNeeded,int whichUser, bool
 
         if(flag==0)  //new user
         {
-            QIcon p=currentUser->getThumbnail();
+            QIcon p;
+            //getting the icon of the user
+            if(currentUser->getThumbnail().isNull())
+                p=QIcon(":/thumbnails/3.png");
+            else
+                p=currentUser->getThumbnail();
 
             //trasferring the icon within the label
             QLabel *pixmapLabels=createPixMapLabels(p);
@@ -270,9 +280,10 @@ void UsersWindow::handleNewOrRemovedUsers(string whatsNeeded,int whichUser, bool
             }
 
             centralLayout->removeItem(buttonLayout);
-            centralLayout->addLayout(this->buttonLayout,x_lastElement+1, NUM_COL-1,1,1,Qt::Alignment());
 
             centralLayout->addLayout(l,x_lastElement,y_lastElement, 1,1,Qt::Alignment());
+            centralLayout->addLayout(this->buttonLayout,x_lastElement+1, NUM_COL-1,1,1,Qt::Alignment());
+
             y_lastElement++;
 
             this->update();

@@ -41,7 +41,7 @@ public slots:
     //whichUser: which user has been removed or added
     //state: true->added
     //       false->removed
-    void handleNewOrRemovedUsers(string whatsNeeded, int whichUser, bool state);
+    void handleNewOrRemovedUsers(string whatsNeeded, bool state);
 
     void handleModThumb(const QIcon &value, string username);
 

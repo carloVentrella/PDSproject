@@ -25,7 +25,7 @@ public:
     map<string, shared_ptr<User>> users;
 
 signals:
-    void modifiedUsersMap(string whatsNeeded,int whichUser, bool state);
+    void modifiedUsersMap(string whatsNeeded,bool state);
 
 private:
     mutex mtx;
