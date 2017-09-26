@@ -23,6 +23,8 @@ void createFileList(QFileInfoList FileInfoList);
 shared_ptr<Users> users;
 // list of selected files
 QList<std::shared_ptr<QFile>> fileList;
+// scout
+shared_ptr<discovery> scout;
 
 void signal_handler(int sig_no){
 
@@ -52,10 +54,9 @@ int main(int argc, char *argv[])
 
     // The scout is in charge of handling the user list.
     // It sends and receives advertisements
-    shared_ptr<discovery> scout(new discovery(groupAddress,port, users));
+    scout = discovery::getInstance(groupAddress,port, users);
 
-
-    //TESTING USERWINDOW (TO BE DELETED) 
+    //TESTING USERWINDOW (TO BE DELETED)
 
     QHostAddress serverAddr;
     qint16 serverPort;
@@ -196,9 +197,8 @@ int new_selection(void){
 
         file.close();
 
-        //NEEDED TO BE REPUT
-        //UsersWindow *u=new UsersWindow(scout,fileList, users,0);
-        //u->show();
+        UsersWindow *u=new UsersWindow(scout,fileList, users,0);
+        u->show();
 
         return 1;
 

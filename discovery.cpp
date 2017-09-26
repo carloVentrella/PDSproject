@@ -21,8 +21,8 @@ discovery::discovery(QHostAddress addr, quint16 port, shared_ptr<Users> users,  
     this->port = port;
     this->users = users;
 
-    socketIn = new QUdpSocket(this);
-    socketOut = new QUdpSocket(this);
+    socketIn = std::make_shared<QUdpSocket>(new QUdpSocket(this));
+    socketOut = std::make_shared<QUdpSocket>(new QUdpSocket(this));
 
     qDebug("Sockets ok");
 
@@ -33,15 +33,15 @@ discovery::discovery(QHostAddress addr, quint16 port, shared_ptr<Users> users,  
         qDebug("Joined multicast group");
 
     // The arrival of a new datagram will trigger the readyRead function
-    connect(socketIn,SIGNAL(readyRead()), this, SLOT(readyRead()));
+    connect(socketIn.get(),SIGNAL(readyRead()), this, SLOT(readyRead()));
 
     // Creating a timer that will trigger the notify member function to notify our presence to neighbours
-    readyMessageTimer = new QTimer();
-    connect(readyMessageTimer, SIGNAL(timeout()), this, SLOT(notify()));
+    readyMessageTimer = std::make_shared<QTimer>(new QTimer());
+    connect(readyMessageTimer.get(), SIGNAL(timeout()), this, SLOT(notify()));
 
     // creating a timer that will trigger a garbage collection to remove no longer ready neighbours
-    garbageCollectionTimer = new QTimer();
-    connect(garbageCollectionTimer, SIGNAL(timeout()), this, SLOT(garbage()));
+    garbageCollectionTimer = std::make_shared<QTimer>(new QTimer());
+    connect(garbageCollectionTimer.get(), SIGNAL(timeout()), this, SLOT(garbage()));
 
     // Send a ready message without waiting the timer
     notify();
