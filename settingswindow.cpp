@@ -86,6 +86,7 @@ void SettingsWindow::setDefault()
 
     //initial label of the user for the icon
     QString icon=Settings::getInstance().getThumbPath();
+    icon=icon.mid(13,icon.length()-13-4);
     ui->iconLabel->setText(icon);
 
 }
@@ -105,6 +106,7 @@ void SettingsWindow::setDestination(string destination)
 void SettingsWindow::setIconChanged(QString icon)
 {
     Settings::getInstance().setThumbPath(icon);
+    icon=icon.mid(13,icon.length()-13-4);
     ui->iconLabel->setText(icon);
 }
 
