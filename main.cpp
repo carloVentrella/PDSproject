@@ -127,16 +127,16 @@ int main(int argc, char *argv[])
 
 
     shared_ptr<User> us3(new User());
-    us3.get()->setUsername("Prof2");
-    us3.get()->setIP(std::to_string(4));
-    us3.get()->setThumbnail(QIcon(image3.c_str()));
-    users.get()->addUser(us3);
+    us3->setUsername("Prof2");
+    us3->setIP(std::to_string(4));
+    us3->setThumbnail(QIcon(image3.c_str()));
+    users->addUser(us3);
 
     shared_ptr<User> us4(new User());
-    us4.get()->setUsername("Prof1");
-    us4.get()->setIP(std::to_string(5));
-    us4.get()->setThumbnail(QIcon(image4.c_str()));
-    users.get()->addUser(us4);
+    us4->setUsername("Prof1");
+    us4->setIP(std::to_string(5));
+    us4->setThumbnail(QIcon(image4.c_str()));
+    users->addUser(us4);
 
     UsersWindow *u=new UsersWindow(scout,fileList, users,0);
 

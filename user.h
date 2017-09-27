@@ -15,7 +15,7 @@ private:
     string IP;
     QIcon thumbnail;
     seconds silentFrom;
-
+    bool thumbnailChanged;
 
 public:
     User();
@@ -24,6 +24,8 @@ public:
     string getUsername() const;
     void setUsername(const string &value);
     QIcon getThumbnail() const;
+    bool isThumbnailChanged() const;
+    void setThumbnailChanged(bool value);
     void setThumbnail(const QIcon &value);
     seconds getSilentFrom() const;
     bool isStillAlive() const;

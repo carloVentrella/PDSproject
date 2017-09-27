@@ -149,7 +149,6 @@ void discovery::readyRead()
 
 }
 
-
 void discovery::notify(bool thumb){
 
     QJsonObject jsonRequest;
@@ -157,16 +156,21 @@ void discovery::notify(bool thumb){
     // Example
     // These info should be read from config
 
-    User curUsr = Settings::getInstance().getCurrentUser();
+    shared_ptr<User> curUsr(Settings::getInstance().getCurrentUser());
 
-    QString user = QString::fromStdString(curUsr.getUsername());
-    QIcon icn = curUsr.getThumbnail();
+    QString user = QString::fromStdString(curUsr->getUsername());
+    QIcon icn = curUsr->getThumbnail();
     QString msg("Ready");
 
     jsonRequest["USR"]=user;
     jsonRequest["MSG"]=msg;
 
-    if (thumb){
+    bool isThumbnailChanged = curUsr->isThumbnailChanged();
+    qDebug() << "isThumbnailChanged?" << isThumbnailChanged;
+
+    if (thumb || isThumbnailChanged){
+
+        curUsr->setThumbnailChanged(false);
 
         // extracts array of bytes from QIcon
         QByteArray data;

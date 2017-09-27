@@ -7,6 +7,7 @@
 #include <QHostAddress>
 #include "user.h"
 #include <QIcon>
+#include <memory>
 
 using namespace std;
 
@@ -17,7 +18,7 @@ private:
     bool fromAll;
     bool on;
     string root;
-    User currentUser;
+    shared_ptr<User> currentUser;
     int multicastPort;
 
     //this variable is needed to find the path of the user's thumbnail
@@ -67,8 +68,8 @@ public:
     void setAppName(const string &value);
     string getRoot() const;
     void setRoot(const string &value);
-    User getCurrentUser() const;
-    void setCurrentUser(const User &value);
+    shared_ptr<User> getCurrentUser() const;
+    void setCurrentUser(const shared_ptr<User> value);
     int getMulticastPort() const;
     void setMulticastPort(const int &value);
 

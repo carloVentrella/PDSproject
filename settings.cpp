@@ -54,23 +54,20 @@ void Settings::LoadSettings()
 
 
     QSettings settings(QString::fromStdString(companyName), QString::fromStdString(appName));
+
     destination=settings.value("downloadDir", QString::fromStdString(path)).toString().toStdString();
-
     root=settings.value("rootDir", QString::fromStdString(path)).toString().toStdString();
-
     fromAll=settings.value("downloadWithoutConfirmation", true).toBool();
-
     on=settings.value("public", true).toBool();
-
-    currentUser.setIP(settings.value("user/IP", "239.255.43.21").toString().toStdString());
-    currentUser.setUsername(settings.value("user/username",QString::fromStdString(user)).toString().toStdString());
-    currentUser.setThumbnail(QIcon(QString::fromStdString(thumb)));
-    multicastPort=settings.value("discovery/multicastPort", 45454).toInt();
-
-    //THUMBNAIL HERE !!!
     thumbPath=settings.value("user/icon", QString::fromStdString(thumb.c_str())).toString();
 
-    //MAXSILENT AND GARBAGE COLLECTOR TIMER
+    currentUser = std::make_shared<User>(User());
+
+    currentUser->setIP(settings.value("user/IP", "239.255.43.21").toString().toStdString());
+    currentUser->setUsername(settings.value("user/username",QString::fromStdString(user)).toString().toStdString());
+    currentUser->setThumbnail(QIcon(thumbPath));
+    multicastPort=settings.value("discovery/multicastPort", 45454).toInt();
+
 }
 
 string Settings::getRoot() const
@@ -84,17 +81,17 @@ void Settings::setRoot(const string &value)
     this->SaveSetting("rootDir", QString::fromStdString(value));
 }
 
-User Settings::getCurrentUser() const
+shared_ptr<User> Settings::getCurrentUser() const
 {
     return currentUser;
 }
 
-void Settings::setCurrentUser(const User &value)
+void Settings::setCurrentUser(const shared_ptr<User> value)
 {
     currentUser = value;
     this->SaveSetting("user/IP", QString::fromStdString(
-                          value.getIP()));
-    this->SaveSetting("user/username", QString::fromStdString(value.getUsername()));
+                          value->getIP()));
+    this->SaveSetting("user/username", QString::fromStdString(value->getUsername()));
 }
 
 int Settings::getMulticastPort() const
@@ -117,7 +114,7 @@ void Settings::setThumbPath(const QString &value)
 {
     thumbPath = value;
     this->SaveSetting("user/icon", value);
-    this->currentUser.setThumbnail(QIcon(value));
+    this->currentUser->setThumbnail(QIcon(value));
 }
 
 Settings::Settings()

@@ -1,6 +1,8 @@
 #include "user.h"
 #include <iostream>
 
+#include <qdebug.h>
+
 std::string User::getIP() const
 {
     return IP;
@@ -26,9 +28,20 @@ QIcon User::getThumbnail() const
     return thumbnail;
 }
 
+bool User::isThumbnailChanged() const
+{
+    return thumbnailChanged;
+}
+
+void User::setThumbnailChanged(bool value)
+{
+    this->thumbnailChanged = value;
+}
+
 void User::setThumbnail(const QIcon &value)
 {
     thumbnail = value;
+    this->thumbnailChanged = true;
 }
 
 void User::stillAlive()
