@@ -347,6 +347,7 @@ void UsersWindow::handleModThumb(const QIcon &value, string username)
 
     if(icons.at(pos)!=pixmapLabels)
     {
+        centralLayout->replaceWidget(icons[pos], pixmapLabels);
         //modifying the label
         icons[pos]=pixmapLabels;
     }
