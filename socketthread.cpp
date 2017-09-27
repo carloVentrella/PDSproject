@@ -60,7 +60,11 @@ void SocketThread::onReadyRead()
 
        bytesToRead -= block.size();
 
-       if (fileName == ""){
+       if (userName == ""){
+           userName = QString::fromUtf8(block);
+           qDebug() << "Username: " << userName;
+       }
+       else if (fileName == ""){
            fileName = QString::fromUtf8(block);
            qDebug() << "Filename: " << fileName;
        }
@@ -94,6 +98,7 @@ void SocketThread::onReadyRead()
                qDebug("Transfer complete!");
                target.close();
                fileOpened = false;
+               userName = "";
                fileName = "";
                type = "";
            }
@@ -114,6 +119,7 @@ void SocketThread::onReadyRead()
 
            qDebug() << "Dir created.  [ " << fileName << " ]";
 
+           userName = "";
            fileName = "";
            type = "";
 
