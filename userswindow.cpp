@@ -48,39 +48,32 @@ UsersWindow::UsersWindow(shared_ptr<discovery> scout, QList<std::shared_ptr<QFil
         {
             User* user=iter->second.get();
             QIcon p;
-            //getting the icon of the user
-            if(user->getThumbnail().isNull())
-                p=QIcon(":/thumbnails/3.png");
-            else
-                p=user->getThumbnail();
 
-
-            //trasferring the icon within the label
-            QLabel *pixmapLabels=createPixMapLabels(p);
-
-            icons.push_back(pixmapLabels);
+            p=user->getThumbnail();
 
             //username
             string us=user->getUsername();
             //IP
             string ip=user->getIP();
 
-            //creating the checkbox for its image
-            QCheckBox *username=new QCheckBox(QString::fromStdString(us), this);
+            QToolButton* button = new QToolButton(this);
+            button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+            button->setIcon(p);
+            button->setIconSize(QSize(100,100));
 
-            username->setMinimumWidth(60);
-            username->setMaximumWidth(140);
+            button->setText(us.c_str());
+            button->setAutoRaise(true);
+            button->setCheckable(true);
 
             //saving the checkbox (it will be used for the sharing function)
-            allButtons.push_back(username);
-
+            //allButtons.push_back(username);
+            allButtons.push_back(button);
             usersMap.insert(us,ip);
 
             QVBoxLayout *l=new QVBoxLayout;
 
             //every widget is part of a subLayout which will be added to the fundamental one later
-            l->addWidget(pixmapLabels);
-            l->addWidget(username);
+            l->addWidget(button);
 
             allLayouts.push_back(l);
 
@@ -115,11 +108,13 @@ UsersWindow::UsersWindow(shared_ptr<discovery> scout, QList<std::shared_ptr<QFil
 
     //connecting the button to the function it has to implement
     connect(buttonToShare,&QPushButton::clicked, [this](){
-        QListIterator<QCheckBox *> iter(this->allButtons);
+        QListIterator<QToolButton *> iter(this->allButtons);
+
         int flag=0;
         while(iter.hasNext())
         {
-            QCheckBox * c=iter.next();
+            //QCheckBox * c=iter.next();
+            QToolButton * c = iter.next();
 
             //here we have to handle the sharing with the users that have the checkbox checked
 
@@ -162,11 +157,12 @@ UsersWindow::UsersWindow(shared_ptr<discovery> scout, QList<std::shared_ptr<QFil
             flag=0;
         }
 
-        cout<<"here i am sharing"<<endl;
-
-        if(flag==0)
+        if(!flag)
         {
             QMessageBox::warning(this, "Warning", "No user checked.. Don't know who to send to..");
+        }
+        else if(!this->files.size()){
+            QMessageBox::warning(this, "Warning", "No file selected.");
         }
         else
         {
@@ -224,7 +220,8 @@ void UsersWindow::handleNewOrRemovedUsers(string whatsNeeded, bool state)
 
         int flag=0;
         int pos=0;
-        QListIterator<QCheckBox *> iter(this->allButtons);
+        QListIterator<QToolButton *> iter(this->allButtons);
+
         while(iter.hasNext())
         {
             if(iter.next()->text().toStdString()==currentUser->getUsername())
@@ -238,38 +235,32 @@ void UsersWindow::handleNewOrRemovedUsers(string whatsNeeded, bool state)
         if(flag==0)  //new user
         {
             QIcon p;
-            //getting the icon of the user
-            if(currentUser->getThumbnail().isNull())
-                p=QIcon(":/thumbnails/3.png");
-            else
-                p=currentUser->getThumbnail();
 
-            //trasferring the icon within the label
-            QLabel *pixmapLabels=createPixMapLabels(p);
-
-            icons.push_back(pixmapLabels);
+            p=currentUser->getThumbnail();
 
             //username
             string us=currentUser->getUsername();
             //IP
             string ip=currentUser->getIP();
 
-            //creating the checkbox for its image
-            QCheckBox *username=new QCheckBox(QString::fromStdString(us), this);
+            QToolButton* button = new QToolButton(this);
+            button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+            button->setIcon(p);
+            button->setIconSize(QSize(100,100));
 
-            username->setMinimumWidth(60);
-            username->setMaximumWidth(140);
+            button->setText(us.c_str());
+            button->setAutoRaise(true);
+            button->setCheckable(true);
 
             //saving the checkbox (it will be used for the sharing function)
-            allButtons.push_back(username);
+            allButtons.push_back(button);
 
             usersMap.insert(us,ip);
 
             QVBoxLayout *l=new QVBoxLayout;
 
             //adding each widget to a subLayout which will be added to the fundamental one
-            l->addWidget(pixmapLabels);
-            l->addWidget(username);
+            l->addWidget(button);
 
             allLayouts.push_back(l);
 
@@ -293,7 +284,6 @@ void UsersWindow::handleNewOrRemovedUsers(string whatsNeeded, bool state)
         {
             //if the user was previously on the form(so I only have all of its features disabled)
             //I only need to enable everything (do not need to create another pair of widgets)
-            icons.at(pos)->setEnabled(true);
 
             allButtons.at(pos)->setEnabled(true);
 
@@ -309,7 +299,8 @@ void UsersWindow::handleNewOrRemovedUsers(string whatsNeeded, bool state)
 
         //I find the position of the current user over my layout
         int pos=0;
-        QListIterator<QCheckBox *> iter(this->allButtons);
+        QListIterator<QToolButton *> iter(this->allButtons);
+
         while(iter.hasNext())
         {
             if(iter.next()->text().toStdString()==username)
@@ -318,9 +309,6 @@ void UsersWindow::handleNewOrRemovedUsers(string whatsNeeded, bool state)
             }
             pos++;
         }
-
-        //when I find the position I disable everything within it
-        icons.at(pos)->setEnabled(false);
 
         allButtons.at(pos)->setEnabled(false);
 
@@ -331,7 +319,7 @@ void UsersWindow::handleNewOrRemovedUsers(string whatsNeeded, bool state)
 void UsersWindow::handleModThumb(const QIcon &value, string username)
 {
     //to find which label to update
-    QListIterator<QCheckBox *> iter(this->allButtons);
+    QListIterator<QToolButton *> iter(this->allButtons);
     int pos=0;
     while(iter.hasNext())
     {
@@ -342,43 +330,8 @@ void UsersWindow::handleModThumb(const QIcon &value, string username)
         pos++;
     }
 
-    //trasferring the icon within the label
-    QLabel *pixmapLabels=createPixMapLabels(value);
+    allButtons.at(pos)->setIcon(value);
+    allButtons.at(pos)->repaint();
 
-    if(icons.at(pos)!=pixmapLabels)
-    {
-        centralLayout->replaceWidget(icons[pos], pixmapLabels);
-        //modifying the label
-        icons[pos]=pixmapLabels;
-    }
     qApp->processEvents();
-}
-
-QLabel *UsersWindow::createPixMapLabels(QIcon p)
-{
-      QLabel *label=new QLabel();
-
-      //to enable the label, so that it will not appear grey
-      label->setEnabled(true);
-
-      //to make sure the image is centered in the box
-      label->setAlignment(Qt::AlignCenter);
-      label->setFrameShape(QFrame::Box);
-
-      label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
-      // This assures a transparent background
-      label->setBackgroundRole(QPalette::NoRole);
-      label->setStyleSheet("border:0px");
-
-      label->setAutoFillBackground(true);
-
-      label->setMinimumSize(100, 100);
-      label->setMaximumSize(140,140);
-
-      //to associate the label and the icon
-      const QPixmap pixmap=p.pixmap(100,100, QIcon::Normal, QIcon::On);
-      label->setPixmap(pixmap);
-
-      return label;
 }
