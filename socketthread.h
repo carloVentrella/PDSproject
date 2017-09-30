@@ -38,6 +38,8 @@ class SocketThread : public QThread
         QString fileName;
         QString type;
 
+        QString getUniqueFileName(QString path);
+
 };
 
 #endif // SOCKETTHREAD_H
