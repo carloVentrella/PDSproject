@@ -17,6 +17,7 @@
 #include <QListIterator>
 #include <QCloseEvent>
 #include <QMessageBox>
+#include <QToolButton>
 
 using namespace std;
 
@@ -52,9 +53,6 @@ signals:
 private:
     Ui::UsersWindow *ui;
 
-    //this function creates the label associated with the icon
-    QLabel* createPixMapLabels(QIcon p);
-
     //this contains the map of users that has to be shown in the window
     shared_ptr<Users> u;
 
@@ -82,10 +80,8 @@ private:
     QGridLayout *centralLayout;
 
     //this is the list of checkbox
-    QList<QCheckBox *> allButtons;
-
-    //this is the list of labels with icons
-    QList<QLabel*> icons;
+    //QList<QCheckBox *> allButtons;
+    QList<QToolButton *> allButtons;
 
     //button to share
     QPushButton *buttonToShare;

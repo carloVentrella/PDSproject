@@ -66,6 +66,8 @@ int main(int argc, char *argv[])
     if ( argc > 1 && atoi(argv[1]) == 1){
 
         // Config 1, RECEIVER
+        // N.B.
+        // Per testare il file transfer inviare ad assuntap
 
         string image2=":/thumbnails/8.png";
         dirtest.setPath("/home/assuntap/remember.txt");
@@ -87,6 +89,8 @@ int main(int argc, char *argv[])
     }else{
 
         // Config 2, SENDER
+        // N.B.
+        // Per testare il file transfer inviare a charlesv
 
         string image=":/thumbnails/10.png";
         dirtest.setPath("/home/assuntap/remember.txt");
@@ -124,6 +128,8 @@ int main(int argc, char *argv[])
     //files.push_back("file1");
     //files.push_back("file2");
     //files.push_back("file3");
+
+    qDebug() << "No. files to send: " << fileList.size();
 
 
     shared_ptr<User> us3(new User());

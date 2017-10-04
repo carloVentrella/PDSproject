@@ -112,7 +112,11 @@ void SocketThread::reception()
 
        bytesToRead -= block.size();
 
-       if (fileName == ""){
+       if (userName == ""){
+           userName = QString::fromUtf8(block);
+           qDebug() << "Username: " << userName;
+       }
+       else if (fileName == ""){
            fileName = QString::fromUtf8(block);
            qDebug() << "Filename: " << fileName;
        }
@@ -126,7 +130,9 @@ void SocketThread::reception()
 
            if ( !fileOpened && fileName != "" ){
 
-               target.setFileName(filePath + "/" + fileName);
+               QString uniqueFileName = getUniqueFileName(filePath + "/" + fileName);
+
+               target.setFileName(uniqueFileName);
                if (!target.open(QIODevice::WriteOnly | QIODevice::Append)) {
                    qDebug() << "Can't open file for written";
                    m_socket->disconnectFromHost();
@@ -146,6 +152,7 @@ void SocketThread::reception()
                qDebug("Transfer complete!");
                target.close();
                fileOpened = false;
+               userName = "";
                fileName = "";
                type = "";
            }
@@ -166,6 +173,7 @@ void SocketThread::reception()
 
            qDebug() << "Dir created.  [ " << fileName << " ]";
 
+           userName = "";
            fileName = "";
            type = "";
 
@@ -187,7 +195,36 @@ void SocketThread::reception()
     qApp->processEvents();
     msleep(500);
 
-
     l->hide();
     l=nullptr;
+
+}
+
+QString SocketThread::getUniqueFileName(QString path){
+
+    QFile f(path);
+    if (!f.exists()) return path;
+
+    QString uniqueFileName(path);
+    int occurrencies = 0;
+
+    QString extesion = "", tmp = "";
+
+    if (uniqueFileName.contains(".")){
+        // extract extension
+        extesion = QString(".").append(uniqueFileName.right(path.section(".",-1).length()));
+        // extract basename without extension
+        uniqueFileName = uniqueFileName.left(uniqueFileName.section(".",-1).length()+1);
+    }
+
+    tmp = uniqueFileName;
+
+    // loop until a new unique name is find
+    while(!f.exists()){
+        uniqueFileName = tmp;
+        uniqueFileName.append(QString::number(occurrencies++)).append(extesion);
+        f.setFileName(uniqueFileName);
+    }
+
+    return uniqueFileName;
 }

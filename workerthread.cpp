@@ -123,6 +123,18 @@ void WorkerThread::run()
         block.clear();
         out.device()->seek(0);
 
+        // send username
+        out << Settings::getInstance().getCurrentUser()->getUsername().c_str();
+        out.device()->seek(0);
+        out << (quint32)(block.size() - sizeof(quint32));
+        written = socket->write(block);
+        socket->flush();
+
+        qDebug() << "Bytes written" << written;
+
+        block.clear();
+        out.device()->seek(0);
+
         // send filename
         out << relativePath.toUtf8();
         out.device()->seek(0);

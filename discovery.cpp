@@ -158,6 +158,10 @@ void discovery::notify(bool thumb){
 
     shared_ptr<User> curUsr(Settings::getInstance().getCurrentUser());
 
+    // don't notify if private mode is active
+    if ( !Settings::getInstance().getOn() )
+        return;
+
     QString user = QString::fromStdString(curUsr->getUsername());
     QIcon icn = curUsr->getThumbnail();
     QString msg("Ready");

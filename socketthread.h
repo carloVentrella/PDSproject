@@ -44,8 +44,11 @@ public slots:
         quint32     m_bytesRead;
         bool        m_readingFile;
 
+        QString userName;
         QString fileName;
         QString type;
+
+        QString getUniqueFileName(QString path);
 };
 
 #endif // SOCKETTHREAD_H
