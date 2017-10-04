@@ -4,6 +4,8 @@
 #include <QIODevice>
 #include <QDataStream>
 
+#include <QApplication>
+
 SocketThread::SocketThread(qintptr descriptor, QObject *parent) : QThread(parent), m_socketDescriptor(descriptor), m_blockSize(0)
 {
     // init here
@@ -35,12 +37,62 @@ qint64 totSizeRead = 0;
 
 void SocketThread::onReadyRead()
 {
+    //FORM FOR THE RECEPTION:
+    AskConfirmationWindow* askconfirmationwindow=new AskConfirmationWindow("user da mettere", 2, 3, 0);
+                                                                            //mettere lo user, il numero di file e la dimensione
+
+    connect(askconfirmationwindow,SIGNAL(canBeReceived()), this, SLOT(reception()));
+
+    //if I don't want to be asked for each reception I don't need the askconfirmationwindow
+    if(!Settings::getInstance().getFromAll())
+    {
+        askconfirmationwindow->show();
+    }
+    else
+    {
+        askconfirmationwindow=NULL;
+        this->reception();
+    }
+}
+
+void SocketThread::onDisconnected()
+{
+    qDebug("Disconnection");
+
+    m_socket->close();
+
+    // leave event loop
+    quit();
+}
+
+void SocketThread::onError(QAbstractSocket::SocketError error){
+
+    qDebug() << error;
+}
+
+void SocketThread::reception()
+{
+    //form for the loading wheel
+    LoadingWheel* l=new LoadingWheel(0);
+    connect(this, SIGNAL(valueChanged(float)), l, SLOT(setProgress(float)));
+    l->show();
+    qApp->processEvents();
+
+    msleep(500);
+
     QDataStream in(m_socket);
     fileOpened = false;
     QFile target;
-    QString filePath = "/home/carloventrella/Downloads/dest/";
+    QString filePath = QString::fromStdString(Settings::getInstance().getDestination());
 
+    qint16 totBytes=m_socket->bytesAvailable();
     while ( (bytesAvailable = m_socket->bytesAvailable()) > 0){
+
+        qDebug()<< "bytesAvailable " << bytesAvailable;
+        emit valueChanged((float)(totBytes-bytesAvailable)/totBytes);
+        qApp->processEvents();
+        msleep(500);
+
 
        if ( m_blockSize == 0){
            in >> m_blockSize;
@@ -153,6 +205,20 @@ void SocketThread::onReadyRead()
 
     }
 
+    qDebug()<< "bytesAvailable " << bytesAvailable;
+
+    //to handle the last value of the loading wheel
+    if(bytesAvailable==0 && totBytes==0)
+        emit valueChanged((float)1);
+    else
+        emit valueChanged((float)(totBytes-bytesAvailable)/totBytes);
+
+    qApp->processEvents();
+    msleep(500);
+
+    l->hide();
+    l=nullptr;
+
 }
 
 QString SocketThread::getUniqueFileName(QString path){
@@ -182,19 +248,4 @@ QString SocketThread::getUniqueFileName(QString path){
     }
 
     return uniqueFileName;
-}
-
-void SocketThread::onDisconnected()
-{
-    qDebug("Disconnection");
-
-    m_socket->close();
-
-    // leave event loop
-    quit();
-}
-
-void SocketThread::onError(QAbstractSocket::SocketError error){
-
-    qDebug() << error;
 }

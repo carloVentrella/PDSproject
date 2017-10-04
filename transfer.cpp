@@ -24,6 +24,10 @@ Transfer::Transfer(QList<shared_ptr<User> > selected_users, QList< std::shared_p
 
     setWindowTitle("Transfer");
 
+    setWindowFlags(Qt::Window
+    | Qt::WindowMinimizeButtonHint
+    | Qt::WindowMaximizeButtonHint);
+
     //to make it appear at the right top of the screen
     QDesktopWidget *desktop=QApplication::desktop();
     int screenWidth=desktop->width();

@@ -56,6 +56,10 @@ void WorkerThread::run()
     if ( (socket->state() != QAbstractSocket::ConnectedState)) {
         qDebug() << "Socket can't connect";
         delete socket;
+
+        //handle the stop of the transfer in a clean way
+        emit finished(position);
+
         return;
     }    
 
@@ -145,6 +149,10 @@ void WorkerThread::run()
             if (!file->open( QIODevice::ReadOnly )){
                 qDebug("Cannot open file, abort");
                 delete socket;
+
+                //handle the stop of the transfer in a clean way
+                emit finished(position);
+
                 return;
             }
             relativePath = curdir + fileInfo.baseName();
@@ -203,10 +211,15 @@ void WorkerThread::run()
                 if (w == -1){
                     qDebug("Cannot write on socket");
                     delete socket;
+
+                    //handle the stop of the transfer in a clean way
+                    emit finished(position);
+
                     return;
                 }
 
                 this->totSizeWritten +=w;
+                written +=w;
                 socket->flush();
 
                 double percentage(this->totSizeWritten/(double)this->totSize*100);
@@ -216,6 +229,8 @@ void WorkerThread::run()
 
                 //modifying the window
                 emit processEvents();
+
+                msleep(1000);
 
                 //modifying the remaining time for the single user
                 emit remTimeModifying(QString::fromStdString(std::to_string(hr).append(" seconds left").c_str()), position);
