@@ -40,7 +40,9 @@ SOURCES += main.cpp\
     socketthread.cpp \
     tcpserver.cpp \
     tcpclient.cpp \
-    choosingiconwindow.cpp
+    choosingiconwindow.cpp \
+    askconfirmationwindow.cpp \
+    loadingwheel.cpp
 
 HEADERS  += \
     user.h \
@@ -58,14 +60,18 @@ HEADERS  += \
     socketthread.h \
     tcpserver.h \
     tcpclient.h \
-    choosingiconwindow.h
+    choosingiconwindow.h \
+    askconfirmationwindow.h \
+    loadingwheel.h
 
 FORMS    += \
     settingswindow.ui \
     choosingdirectorywindow.ui \
     userswindow.ui \
     transfer.ui \
-    choosingiconwindow.ui
+    choosingiconwindow.ui \
+    askconfirmationwindow.ui \
+    loadingwheel.ui
 
 RESOURCES += \
     res.qrc

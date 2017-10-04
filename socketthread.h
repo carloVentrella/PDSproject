@@ -5,6 +5,10 @@
 #include <QTcpSocket>
 #include <QAbstractSocket>
 
+#include "settings.h"
+#include "askconfirmationwindow.h"
+#include "loadingwheel.h"
+
 class SocketThread : public QThread
 {
     Q_OBJECT
@@ -19,6 +23,9 @@ class SocketThread : public QThread
     signals:
         void onFinishRecieved();
 
+        //this signal has to be used when i need to change the value in the loading wheel
+        void valueChanged(float value);
+
     private slots:
         // Function called when there are bytes to be read
         void onReadyRead();
@@ -26,6 +33,9 @@ class SocketThread : public QThread
         void onDisconnected();
         // Function called if there is an error
         void onError(QAbstractSocket::SocketError);
+
+public slots:
+        void reception();
 
     private:
         qintptr m_socketDescriptor;
@@ -36,7 +46,6 @@ class SocketThread : public QThread
 
         QString fileName;
         QString type;
-
 };
 
 #endif // SOCKETTHREAD_H

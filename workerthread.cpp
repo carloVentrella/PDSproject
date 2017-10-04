@@ -50,6 +50,10 @@ void WorkerThread::run()
     if ( (socket->state() != QAbstractSocket::ConnectedState)) {
         qDebug() << "Socket can't connect";
         delete socket;
+
+        //handle the stop of the transfer in a clean way
+        emit finished(position);
+
         return;
     }
 
@@ -102,6 +106,10 @@ void WorkerThread::run()
             if (!file->open( QIODevice::ReadOnly )){
                 qDebug("Cannot open file, abort");
                 delete socket;
+
+                //handle the stop of the transfer in a clean way
+                emit finished(position);
+
                 return;
             }
 
@@ -161,8 +169,22 @@ void WorkerThread::run()
                 if (w == -1){
                     qDebug("Cannot write on socket");
                     delete socket;
+
+                    //handle the stop of the transfer in a clean way
+                    emit finished(position);
+
                     return;
                 }
+
+
+                //i don't see the transfer window so i intentionally slow down the process
+                // -->
+                //modifying the bar of the single user
+                emit progBarModifying(filesSent/nFiles*100,position);
+                emit processEvents();
+
+                msleep(1000);
+                //
 
                 written +=w;
                 socket->flush();

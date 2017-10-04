@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
         // Config 1, RECEIVER
 
         string image2=":/thumbnails/8.png";
-        dirtest.setPath("--PATH FILE/DIR DA INVIARE");
+        dirtest.setPath("/home/assuntap/remember.txt");
 
         shared_ptr<User> us(new User());
         us.get()->setUsername("assuntap");
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
         // Config 2, SENDER
 
         string image=":/thumbnails/10.png";
-        dirtest.setPath("--PATH FILE/DIR DA INVIARE");
+        dirtest.setPath("/home/assuntap/remember.txt");
 
         shared_ptr<User> us1(new User());
         us1.get()->setUsername("charlesv");
