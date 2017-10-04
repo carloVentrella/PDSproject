@@ -50,7 +50,8 @@ class ColumnExtension(GObject.GObject, Nautilus.MenuProvider):
         item = Nautilus.MenuItem(
             name="SimpleMenuExtension::Show_File_Name",
             label="Share",
-            tip="Share"
+            tip="Share",
+            icon="myappicon.png"
         )
         item.connect('activate', self.menu_activate_cb, files)
         items.append(item)
