@@ -25,6 +25,8 @@ private:
 
     QHostAddress serverAddr;
     qint16 serverPort;
+    qint64 totSize;
+    qint64 totSizeWritten;
 
 public:
     explicit WorkerThread(QObject *parent = 0, Transfer *t=0, int position=0);

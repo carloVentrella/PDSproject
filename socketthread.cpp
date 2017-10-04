@@ -30,6 +30,8 @@ qint64 bytesAvailable=0;
 qint64 bytesToRead = 0;
 qint64 bytesWritten = 0;
 bool fileOpened = false;
+qint64 totSize = -1;
+qint64 totSizeRead = 0;
 
 void SocketThread::onReadyRead()
 {
@@ -64,13 +66,29 @@ void SocketThread::onReadyRead()
            userName = QString::fromUtf8(block);
            qDebug() << "Username: " << userName;
        }
+       else if (totSize == -1){
+
+           totSize = QString::fromUtf8(block).toInt();
+           qDebug() << "Tot size: " << totSize;
+
+           QString resp("ACC");
+           m_socket->write(resp.toUtf8(), resp.length());
+           m_socket->flush();
+           m_socket->waitForBytesWritten(-1);
+
+           qDebug() << "Response sent [" << resp.length() << "]";
+
+       }
        else if (fileName == ""){
-           fileName = QString::fromUtf8(block);
+           fileName = QString::fromUtf8(block);   
            qDebug() << "Filename: " << fileName;
        }
        else if (type == ""){
            type = QString::fromUtf8(block);
-            qDebug() << "Type: " << type;
+           qDebug() << "Type: " << type;
+
+           if (type == "FILE")
+               fileName = getUniqueFileName(filePath + "/" + fileName);
 
        }else{
 
@@ -78,9 +96,7 @@ void SocketThread::onReadyRead()
 
            if ( !fileOpened && fileName != "" ){
 
-               QString uniqueFileName = getUniqueFileName(filePath + "/" + fileName);
-
-               target.setFileName(uniqueFileName);
+               target.setFileName(fileName);
                if (!target.open(QIODevice::WriteOnly | QIODevice::Append)) {
                    qDebug() << "Can't open file for written";
                    m_socket->disconnectFromHost();
@@ -95,16 +111,15 @@ void SocketThread::onReadyRead()
 
            qint64 written = target.write(block,block.size());
            bytesWritten += written;
+           totSizeRead += written;
 
            if (!bytesToRead){
                qDebug("Transfer complete!");
                target.close();
                fileOpened = false;
-               userName = "";
                fileName = "";
                type = "";
            }
-
 
        }
 
@@ -121,7 +136,6 @@ void SocketThread::onReadyRead()
 
            qDebug() << "Dir created.  [ " << fileName << " ]";
 
-           userName = "";
            fileName = "";
            type = "";
 
@@ -129,6 +143,13 @@ void SocketThread::onReadyRead()
 
        if (!bytesToRead)
            m_blockSize = 0;
+
+       // All files are arrived
+       if (totSizeRead==totSize){
+           userName = "";
+           totSize = -1;
+           totSizeRead = 0;
+       }
 
     }
 
@@ -154,7 +175,7 @@ QString SocketThread::getUniqueFileName(QString path){
     tmp = uniqueFileName;
 
     // loop until a new unique name is find
-    while(!f.exists()){
+    while(f.exists()){
         uniqueFileName = tmp;
         uniqueFileName.append(QString::number(occurrencies++)).append(extesion);
         f.setFileName(uniqueFileName);

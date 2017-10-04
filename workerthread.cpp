@@ -20,7 +20,13 @@ WorkerThread::WorkerThread(QObject *parent, Transfer *t, int position) : QThread
     this->position=position;
     this->user=t->getSelected_users().at(position);
     this->files=t->getFiles();
+    this->totSize = 0;
+    this->totSizeWritten = 0;
 
+    // sum size of files
+    for ( shared_ptr<QFile> f : this->files){
+        this->totSize += f->size();
+    }
 
     this->serverAddr = Settings::getInstance().getTCPServerAddr();
     this->serverPort = Settings::getInstance().getTCPServerPort();
@@ -51,7 +57,7 @@ void WorkerThread::run()
         qDebug() << "Socket can't connect";
         delete socket;
         return;
-    }
+    }    
 
     QString curdir;
     QString type;
@@ -62,13 +68,50 @@ void WorkerThread::run()
 
     qDebug () << "Ready to send " << nFiles << " items";
 
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+
+    block.clear();
+    out.device()->seek(0);
+
+    // send username
+    out << Settings::getInstance().getCurrentUser()->getUsername().c_str();
+    out.device()->seek(0);
+    out << (quint32)(block.size() - sizeof(quint32));
+    written = socket->write(block);
+    socket->flush();
+
+    qDebug() << "Bytes written" << written;
+
+    block.clear();
+    out.device()->seek(0);
+
+    qDebug() << "Tot size: " << this->totSize;
+
+    // send totsize
+    out << QString::number(this->totSize).toUtf8();
+    out.device()->seek(0);
+    out << (quint32)(block.size() - sizeof(quint32));
+    written = socket->write(block);
+    socket->flush();
+
+    qDebug() << "Bytes written" << written;
+
+    socket->waitForReadyRead(-1);
+
+    // Read ACC or REF
+    QByteArray block_rd = socket->readAll();
+    QString response = QString::fromUtf8(block_rd);
+    qDebug() << "Response: " << response;
+
+    if (response == "REF")
+        return;
+
+
     for (std::shared_ptr<QFile> file : files){
 
         // get fileInfo
         QFileInfo fileInfo(file->fileName());
-
-        QByteArray block;
-        QDataStream out(&block, QIODevice::WriteOnly);
 
         QString tmp="";
         for (QString token : curdir.split("/")){
@@ -104,25 +147,12 @@ void WorkerThread::run()
                 delete socket;
                 return;
             }
-
             relativePath = curdir + fileInfo.baseName();
             out << (quint32)0 << relativePath << type;
 
             qDebug() << "Sending file [ " << relativePath << ", " << file->size() << " ]";
 
         }
-
-        block.clear();
-        out.device()->seek(0);
-
-        // send username
-        out << Settings::getInstance().getCurrentUser()->getUsername().c_str();
-        out.device()->seek(0);
-        out << (quint32)(block.size() - sizeof(quint32));
-        written = socket->write(block);
-        socket->flush();
-
-        qDebug() << "Bytes written" << written;
 
         block.clear();
         out.device()->seek(0);
@@ -166,7 +196,7 @@ void WorkerThread::run()
             qint64 w;
 
             while (!file->atEnd() ) {
-                QByteArray line = file->read(4096);
+                QByteArray line = file->read(12276);
                 read += line.size();
                 w = socket->write(line);
 
@@ -176,8 +206,29 @@ void WorkerThread::run()
                     return;
                 }
 
-                written +=w;
+                this->totSizeWritten +=w;
                 socket->flush();
+
+                double percentage(this->totSizeWritten/(double)this->totSize*100);
+
+                //modifying the bar of the single user
+                emit progBarModifying(percentage,position);
+
+                //modifying the window
+                emit processEvents();
+
+                //modifying the remaining time for the single user
+                emit remTimeModifying(QString::fromStdString(std::to_string(hr).append(" seconds left").c_str()), position);
+
+                //modifying the general progress bar
+                emit progBarModifying();
+
+                emit processEvents();
+
+                //modifying the general remaining time
+                emit remTimeModifying(QString::fromStdString(to_string(100-this->t->getProgressBar()->value()).append(" seconds left").c_str()));
+
+                emit processEvents();
 
             }
 
@@ -185,28 +236,6 @@ void WorkerThread::run()
         }
 
         filesSent++;
-        double percentage(filesSent/(double)nFiles*100);
-
-        qDebug() << type << " sent. [" << percentage << "]";
-
-        //modifying the bar of the single user
-        emit progBarModifying(percentage,position);
-
-        //modifying the window
-        emit processEvents();
-
-        //modifying the remaining time for the single user
-        emit remTimeModifying(QString::fromStdString(std::to_string(hr).append(" seconds left").c_str()), position);
-
-        //modifying the general progress bar
-        emit progBarModifying();
-
-        emit processEvents();
-
-        //modifying the general remaining time
-        emit remTimeModifying(QString::fromStdString(to_string(100-this->t->getProgressBar()->value()).append(" seconds left").c_str()));
-
-        emit processEvents();
 
     }
 
@@ -214,3 +243,4 @@ void WorkerThread::run()
 
     emit finished(position);
 }
+
