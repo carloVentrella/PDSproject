@@ -35,7 +35,8 @@ class SocketThread : public QThread
         void onError(QAbstractSocket::SocketError);
 
 public slots:
-        void reception();
+        void sendConfirmationAccept();
+        void sendConfirmationRefuse();
 
     private:
         qintptr m_socketDescriptor;
@@ -49,6 +50,9 @@ public slots:
         QString type;
 
         QString getUniqueFileName(QString path);
+
+        void sendConfirmationResponse(QString resp);
+
 };
 
 #endif // SOCKETTHREAD_H

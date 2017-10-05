@@ -28,6 +28,7 @@ private slots:
 signals:
     //this signal is used by the form to let the socketthread accept the reception
     void canBeReceived();
+    void cannotBeReceived();
 
 private:
     Ui::AskConfirmationWindow *ui;

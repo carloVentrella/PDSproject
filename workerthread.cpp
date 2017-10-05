@@ -25,6 +25,13 @@ WorkerThread::WorkerThread(QObject *parent, Transfer *t, int position) : QThread
 
     // sum size of files
     for ( shared_ptr<QFile> f : this->files){
+        QFileInfo qf(f->fileName());
+
+        // skip folder
+        if (qf.isDir())
+            continue;
+
+        qDebug() << f->fileName() << " -> " << f->size();
         this->totSize += f->size();
     }
 
@@ -155,7 +162,7 @@ void WorkerThread::run()
 
                 return;
             }
-            relativePath = curdir + fileInfo.baseName();
+            relativePath = curdir + fileInfo.fileName();
             out << (quint32)0 << relativePath << type;
 
             qDebug() << "Sending file [ " << relativePath << ", " << file->size() << " ]";
@@ -204,7 +211,7 @@ void WorkerThread::run()
             qint64 w;
 
             while (!file->atEnd() ) {
-                QByteArray line = file->read(12276);
+                QByteArray line = file->read(8182);
                 read += line.size();
                 w = socket->write(line);
 
@@ -229,8 +236,6 @@ void WorkerThread::run()
 
                 //modifying the window
                 emit processEvents();
-
-                msleep(1000);
 
                 //modifying the remaining time for the single user
                 emit remTimeModifying(QString::fromStdString(std::to_string(hr).append(" seconds left").c_str()), position);

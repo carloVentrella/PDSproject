@@ -44,5 +44,6 @@ void AskConfirmationWindow::on_YesButton_clicked()
 
 void AskConfirmationWindow::on_NoButton_clicked()
 {
+    emit cannotBeReceived();
     this->hide();
 }
