@@ -56,81 +56,15 @@ int main(int argc, char *argv[])
     // It sends and receives advertisements
     scout = discovery::getInstance(groupAddress,port, users);
 
-    //TESTING USERWINDOW (TO BE DELETED)
+    QHostAddress serverAddr("127.0.0.1");
+    qint16 serverPort = 5555;
 
-    QHostAddress serverAddr;
-    qint16 serverPort;
-
-    QDir dirtest;
-
-    if ( argc > 1 && atoi(argv[1]) == 1){
-
-        // Config 1, RECEIVER
-        // N.B.
-        // Per testare il file transfer inviare ad assuntap
-
-        string image2=":/thumbnails/8.png";
-        dirtest.setPath("/home/assuntap/remember.txt");
-
-        shared_ptr<User> us(new User());
-        us.get()->setUsername("assuntap");
-        us.get()->setIP("127.0.0.1");
-        us.get()->setThumbnail(QIcon(image2.c_str()));
-        users.get()->addUser(us);
-
-        // Example paramenters, should be read from config
-        serverAddr.setAddress("127.0.0.1");
-        serverPort = 5555;
-
-        Settings::getInstance().setTCPServerAddr("127.0.0.1");
-        Settings::getInstance().setTCPServerPort(5556);
-
-
-    }else{
-
-        // Config 2, SENDER
-        // N.B.
-        // Per testare il file transfer inviare a charlesv
-
-        string image=":/thumbnails/10.png";
-        dirtest.setPath("/home/assuntap/remember.txt");
-
-        shared_ptr<User> us1(new User());
-        us1.get()->setUsername("charlesv");
-        us1.get()->setIP("localhost");
-        us1.get()->setThumbnail(QIcon(image.c_str()));
-        users.get()->addUser(us1);
-
-        // Example paramenters, should be read from config
-        serverAddr.setAddress("127.0.0.1");
-        serverPort = 5556;
-
-        Settings::getInstance().setTCPServerAddr("127.0.0.1");
-        Settings::getInstance().setTCPServerPort(5555);
-
-    }
 
     Server tcpServer(serverAddr, serverPort);
     tcpServer.start();
 
-    QString path = dirtest.absolutePath();
-
-    QFileInfoList files;
-    QFileInfo fileInfo(path);
-    files.append(fileInfo);
-    createFileList(files);
-
     string image3=":/thumbnails/6.png";
     string image4=":/thumbnails/4.png";
-
-    //list of files to test
-    //vector<string> files;
-    //files.push_back("file1");
-    //files.push_back("file2");
-    //files.push_back("file3");
-
-    qDebug() << "No. files to send: " << fileList.size();
-
 
     shared_ptr<User> us3(new User());
     us3->setUsername("Prof2");
@@ -144,15 +78,10 @@ int main(int argc, char *argv[])
     us4->setThumbnail(QIcon(image4.c_str()));
     users->addUser(us4);
 
-    UsersWindow *u=new UsersWindow(scout,fileList, users,0);
-
-    u->show();
-    //END TESTING (TO BE DELETED)
-
     return a.exec();
 }
 
-int new_selection(void){    
+int new_selection(void){
 
         // read selected files
         // should be read from a config file
