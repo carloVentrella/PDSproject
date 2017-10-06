@@ -228,6 +228,8 @@ Transfer::Transfer(QList<shared_ptr<User> > selected_users, QList< std::shared_p
     for(int pos=0;pos<this->selected_users.size();pos++)
     {
         WorkerThread* t=new WorkerThread(this, this, pos);
+        t->setServerAddr(QHostAddress(QString::fromStdString(this->selected_users[pos]->getIP())));
+
         connect(t,SIGNAL(finished(int)), this,SLOT(transferEnd(int))); //signal to handle the end of the work in each thread
         connect(t, SIGNAL(processEvents()), this, SLOT(handleProcessEvents())); //signal to update the window
         connect(t,SIGNAL(progBarModifying(int,int)),this, SLOT(handleProgBarModifying(int,int))); //signal to update the progBar for each user

@@ -68,6 +68,7 @@ void Settings::LoadSettings()
     currentUser->setThumbnail(QIcon(thumbPath));
     multicastPort=settings.value("discovery/multicastPort", 45454).toInt();
 
+    TCPServerPort = settings.value("TCPServerPort",5555).toInt();
 }
 
 string Settings::getRoot() const

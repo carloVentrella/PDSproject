@@ -14,6 +14,16 @@
 #include <memory>
 #include <settings.h>
 
+QHostAddress WorkerThread::getServerAddr() const
+{
+    return serverAddr;
+}
+
+void WorkerThread::setServerAddr(const QHostAddress &value)
+{
+    serverAddr = value;
+}
+
 WorkerThread::WorkerThread(QObject *parent, Transfer *t, int position) : QThread(parent)
 {
     this->t=t;
@@ -35,7 +45,6 @@ WorkerThread::WorkerThread(QObject *parent, Transfer *t, int position) : QThread
         this->totSize += f->size();
     }
 
-    this->serverAddr = Settings::getInstance().getTCPServerAddr();
     this->serverPort = Settings::getInstance().getTCPServerPort();
 
 }

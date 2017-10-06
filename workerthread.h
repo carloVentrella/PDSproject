@@ -35,6 +35,9 @@ public:
 
     void run();
 
+    QHostAddress getServerAddr() const;
+    void setServerAddr(const QHostAddress &value);
+
 signals:
     void processEvents();
     void progBarModifying(int value, int node);
