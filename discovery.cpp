@@ -26,7 +26,6 @@ discovery::discovery(QHostAddress addr, quint16 port, shared_ptr<Users> users,  
 
     qDebug("Sockets ok");
 
-
     if (socketIn->bind(QHostAddress::AnyIPv4, this->port, QUdpSocket::DontShareAddress))
         qDebug("Bind ok");
 

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QMessageBox>
 
 Transfer::Transfer(QList<shared_ptr<User> > selected_users, QList< std::shared_ptr<QFile>> files, QWidget *parent) :
     QDialog(parent),
@@ -211,7 +212,7 @@ Transfer::Transfer(QList<shared_ptr<User> > selected_users, QList< std::shared_p
                 }
                 if(i==(int)flags.size())
                 {
-                    this->hide();
+                    //this->hide();
                 }
             }
 
@@ -236,6 +237,7 @@ Transfer::Transfer(QList<shared_ptr<User> > selected_users, QList< std::shared_p
         connect(t,SIGNAL(progBarModifying()),this, SLOT(handleProgBarModifying())); //signal to update the general progBar
         connect(t,SIGNAL(remTimeModifying(QString,int)), this, SLOT(handleRemTimeModifying(QString,int))); //signal to update the label of the remainingTime for each user
         connect(t,SIGNAL(remTimeModifying(QString)),this,SLOT(handleRemTimeModifying(QString))); //signal to handle the label of the general remaining time
+        connect(t,SIGNAL(errorHandling(int,QString)), this, SLOT(errorsHandler(int,QString)));
 
         this->sendingThreads.push_back(std::move(t));
     }
@@ -381,7 +383,7 @@ void Transfer::transferEnd(int node)
     this->flagToQuit++;
     if(this->flagToQuit==this->sendingThreads.size()) //if all threads have terminated, the window closes
     {
-        this->hide();
+        //this->hide();
     }
 }
 
@@ -434,4 +436,15 @@ void Transfer::handleRemTimeModifying(QString value)
     this->mTime.lock();
     this->remainingTime->setText(value);
     this->mTime.unlock();
+}
+
+void Transfer::errorsHandler(int node, QString error)
+{
+    QString errorUser=this->usersLabelPerSingleTransfer.at(node)->text()+"\n"+error;
+    QMessageBox::warning(this, "Warning", errorUser);
+    this->usersLabelPerSingleTransfer.at(node)->setText(errorUser);
+    this->usersLabelPerSingleTransfer.at(node)->repaint();
+    this->usersLabelPerSingleTransfer.at(node)->setStyleSheet("color: rgb(239, 41, 41);");
+    this->update();
+    this->adjustSize();
 }

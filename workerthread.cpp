@@ -76,6 +76,27 @@ void WorkerThread::run()
         qDebug() << "Socket can't connect";
         delete socket;
 
+
+        emit errorHandling(position, "Socket can't connect");
+        //modifying the bar of the single user
+        emit progBarModifying(100,position);
+
+        //modifying the window
+        emit processEvents();
+
+        //modifying the remaining time for the single user
+        emit remTimeModifying(QString::fromStdString(std::to_string(0).append(" seconds left").c_str()), position);
+
+        //modifying the general progress bar
+        emit progBarModifying();
+
+        emit processEvents();
+
+        //modifying the general remaining time
+        emit remTimeModifying(QString::fromStdString(to_string(100-this->t->getProgressBar()->value()).append(" seconds left").c_str()));
+
+        emit processEvents();
+
         //handle the stop of the transfer in a clean way
         emit finished(position);
 
@@ -128,8 +149,28 @@ void WorkerThread::run()
     qDebug() << "Response: " << response;
 
     if (response == "REF")
-        return;
+    {
+        emit errorHandling(position, "REFUSED");
+        //modifying the bar of the single user
+        emit progBarModifying(100,position);
 
+        //modifying the window
+        emit processEvents();
+
+        //modifying the remaining time for the single user
+        emit remTimeModifying(QString::fromStdString(std::to_string(0).append(" seconds left").c_str()), position);
+
+        //modifying the general progress bar
+        emit progBarModifying();
+
+        emit processEvents();
+
+        //modifying the general remaining time
+        emit remTimeModifying(QString::fromStdString(to_string(100-this->t->getProgressBar()->value()).append(" seconds left").c_str()));
+
+        emit processEvents();
+        return;
+    }
 
     int globalStartTime = QDateTime::currentSecsSinceEpoch();
 
@@ -172,6 +213,26 @@ void WorkerThread::run()
             if (!file->open( QIODevice::ReadOnly )){
                 qDebug("Cannot open file, abort");
                 delete socket;
+
+                emit errorHandling(position, "Cannot open file, abort");
+                //modifying the bar of the single user
+                emit progBarModifying(100,position);
+
+                //modifying the window
+                emit processEvents();
+
+                //modifying the remaining time for the single user
+                emit remTimeModifying(QString::fromStdString(std::to_string(0).append(" seconds left").c_str()), position);
+
+                //modifying the general progress bar
+                emit progBarModifying();
+
+                emit processEvents();
+
+                //modifying the general remaining time
+                emit remTimeModifying(QString::fromStdString(to_string(100-this->t->getProgressBar()->value()).append(" seconds left").c_str()));
+
+                emit processEvents();
 
                 //handle the stop of the transfer in a clean way
                 emit finished(position);
@@ -236,6 +297,26 @@ void WorkerThread::run()
                 if (w == -1){
                     qDebug("Cannot write on socket");
                     delete socket;
+
+                    emit errorHandling(position, "Cannot write on socket");
+                    //modifying the bar of the single user
+                    emit progBarModifying(100,position);
+
+                    //modifying the window
+                    emit processEvents();
+
+                    //modifying the remaining time for the single user
+                    emit remTimeModifying(QString::fromStdString(std::to_string(0).append(" seconds left").c_str()), position);
+
+                    //modifying the general progress bar
+                    emit progBarModifying();
+
+                    emit processEvents();
+
+                    //modifying the general remaining time
+                    emit remTimeModifying(QString::fromStdString(to_string(100-this->t->getProgressBar()->value()).append(" seconds left").c_str()));
+
+                    emit processEvents();
 
                     //handle the stop of the transfer in a clean way
                     emit finished(position);

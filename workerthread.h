@@ -46,6 +46,8 @@ signals:
     void remTimeModifying(QString value);
     void finished(int node);
 
+    void errorHandling(int node, QString error);
+
 public slots:
 };
 
