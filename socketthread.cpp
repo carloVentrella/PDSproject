@@ -3,7 +3,6 @@
 #include <QDir>
 #include <QIODevice>
 #include <QDataStream>
-
 #include <QApplication>
 
 SocketThread::SocketThread(qintptr descriptor, QObject *parent) : QThread(parent), m_socketDescriptor(descriptor), m_blockSize(0)
@@ -140,6 +139,8 @@ void SocketThread::onReadyRead()
 
            // if this is the first file start the loading wheel
            if (fileRead == 0 && l == nullptr){
+
+               // start loading wheel
                l=new LoadingWheel();
                connect(this, SIGNAL(valueChanged(float)), l, SLOT(setProgress(float)));
                l->show();
@@ -237,6 +238,9 @@ void SocketThread::onReadyRead()
            totSize = -1;
            totSizeRead = 0;
 
+           this->sendConfirmationResponse("OK");
+
+           msleep(1000);
            // hide the loading wheel
            emit valueChanged((float)1);
            l->hide();
@@ -270,7 +274,7 @@ QString SocketThread::getUniqueFileName(QString abspath){
     if (!f.exists()) return abspath;
 
     QString basename(abspath);
-    int occurrencies = 0;
+    int occurrencies = 1;
 
     QString extesion = "", path = "", tmp = "";
 

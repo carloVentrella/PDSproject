@@ -13,6 +13,7 @@
 #include <QFileInfoList>
 #include <memory>
 #include <settings.h>
+#include <QDateTime>
 
 QHostAddress WorkerThread::getServerAddr() const
 {
@@ -130,7 +131,11 @@ void WorkerThread::run()
         return;
 
 
+    int globalStartTime = QDateTime::currentSecsSinceEpoch();
+
     for (std::shared_ptr<QFile> file : files){
+
+        int startTime = QDateTime::currentSecsSinceEpoch();
 
         // get fileInfo
         QFileInfo fileInfo(file->fileName());
@@ -243,6 +248,16 @@ void WorkerThread::run()
                 socket->flush();
                 socket->waitForBytesWritten();
 
+                int duration = QDateTime::currentSecsSinceEpoch() - startTime;
+                qDebug() << "Time elapsed: " << duration << "s";
+                float speed = this->totSizeWritten / (float)(duration);
+                qDebug() << "Speed: " << speed << "b/s";
+
+                int globalEstimate = (this->totSize - this->totSizeWritten)/speed;
+                int localEstimate = (file->size() - written) /speed;
+
+                qDebug() << "remaining time: " << globalEstimate << "s";
+
 
                 double percentage(this->totSizeWritten/(double)this->totSize*100);
 
@@ -253,15 +268,15 @@ void WorkerThread::run()
                 emit processEvents();
 
                 //modifying the remaining time for the single user
-                emit remTimeModifying(QString::fromStdString(std::to_string(hr).append(" seconds left").c_str()), position);
+                emit remTimeModifying(QString::fromStdString(std::to_string(localEstimate).append(" seconds left").c_str()), position);
 
                 //modifying the general progress bar
                 emit progBarModifying();
 
                 emit processEvents();
 
-                //modifying the general remaining time
-                emit remTimeModifying(QString::fromStdString(to_string(100-this->t->getProgressBar()->value()).append(" seconds left").c_str()));
+                //modifying the general remaining time (total)
+                emit remTimeModifying(QString::fromStdString(to_string(globalEstimate).append(" seconds left").c_str()));
 
                 emit processEvents();
 
@@ -278,6 +293,12 @@ void WorkerThread::run()
 
     //handle the stop of the transfer in a clean way
     qDebug() << "All files sent";
+
+    // Wait client to finish
+    socket->waitForReadyRead(-1);
+    QByteArray block_final = socket->readAll();
+    QString result = QString::fromUtf8(block_rd);
+    qDebug() << "Response: " << result;
 
     emit finished(position);
 }
