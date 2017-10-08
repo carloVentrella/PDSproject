@@ -26,11 +26,14 @@ discovery::discovery(QHostAddress addr, quint16 port, shared_ptr<Users> users,  
 
     qDebug("Sockets ok");
 
-    if (socketIn->bind(QHostAddress::AnyIPv4, this->port, QUdpSocket::ShareAddress))
+
+    if (socketIn->bind(QHostAddress::AnyIPv4, this->port, QUdpSocket::DontShareAddress))
         qDebug("Bind ok");
 
     if (socketIn->joinMulticastGroup(this->addr))
         qDebug("Joined multicast group");
+
+    socketIn->setSocketOption(QAbstractSocket::ReceiveBufferSizeSocketOption,2000000);
 
     // The arrival of a new datagram will trigger the readyRead function
     connect(socketIn.get(),SIGNAL(readyRead()), this, SLOT(readyRead()));
