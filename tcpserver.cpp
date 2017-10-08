@@ -11,7 +11,7 @@ Server::Server(QHostAddress host, quint16 port, QObject *parent)
 
 void Server::start()
 {
-    if ( this->listen(m_host, m_port) )
+    if ( this->listen(QHostAddress::AnyIPv4, m_port) )
         qDebug() << "Server started at " << m_host.toString() << ":" << m_port;
     else
         qDebug() << "Can't start server";

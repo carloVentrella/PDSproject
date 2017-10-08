@@ -43,11 +43,14 @@ discovery::discovery(QHostAddress addr, quint16 port, shared_ptr<Users> users,  
     garbageCollectionTimer = std::make_shared<QTimer>(new QTimer());
     connect(garbageCollectionTimer.get(), SIGNAL(timeout()), this, SLOT(garbage()));
 
-    // Send a ready message without waiting the timer
-    notify();
+    // set ttl
+    this->socketOut->setSocketOption(QAbstractSocket::MulticastTtlOption, 2);
 
-    readyMessageTimer->start(10000);
-    garbageCollectionTimer->start(150000);
+    // Send a ready message without waiting the timer
+    notify(true);
+
+    readyMessageTimer->start(3000);
+    garbageCollectionTimer->start(7000);
 
 
 }
@@ -211,7 +214,7 @@ void discovery::sendMessage(QJsonObject jsonRequest)
     QJsonDocument doc(jsonRequest);
     QByteArray data(doc.toBinaryData());
 
-    if(this->socketOut->writeDatagram(data, this->addr, this->port)==-1){
+    if(this->socketOut->writeDatagram(data, data.size(), this->addr, this->port)==-1){
         // We may reach this point if the datagram is too big
         // The maximum size of a datagram is highly platform indipendent
         qDebug("Error while sending datagram");
@@ -223,3 +226,10 @@ void discovery::sendMessage(QJsonObject jsonRequest)
 
 }
 
+
+discovery::~discovery()
+{
+    socketIn->leaveMulticastGroup(this->addr);
+    socketIn->close();
+    socketOut->close();
+}

@@ -16,7 +16,7 @@ public:
     //explicit discovery(QHostAddress addr, quint16 port, shared_ptr<Users> users, QObject *parent = 0);
     void sendMessage(QJsonObject);
 
-    //discovery(const discovery& source);
+    ~discovery();
 
     static shared_ptr<discovery> getInstance(QHostAddress addr, quint16 port, shared_ptr<Users> users, QObject *parent = 0)
     {
@@ -46,6 +46,7 @@ private:
     discovery(QHostAddress addr, quint16 port, shared_ptr<Users> users, QObject *parent = 0);
 
     discovery(discovery const&);
+
     void operator=(discovery const&);
 
 };

@@ -66,6 +66,8 @@ void WorkerThread::run()
     // when the thread finishes deallocate its objects
     connect(socket, SIGNAL(disconnected()), socket, SLOT(deleteLater()));
 
+    qDebug() << "Connecting to " << serverAddr << "," << serverPort;
+
     socket->connectToHost(serverAddr, serverPort);
     socket->waitForConnected();
 
@@ -220,9 +222,11 @@ void WorkerThread::run()
             qint64 w;
 
             while (!file->atEnd() ) {
-                QByteArray line = file->read(8182);
+                QByteArray line = file->read(4096);
                 read += line.size();
                 w = socket->write(line);
+
+                qDebug() << w << " bytes sent";
 
                 if (w == -1){
                     qDebug("Cannot write on socket");
@@ -237,6 +241,8 @@ void WorkerThread::run()
                 this->totSizeWritten +=w;
                 written +=w;
                 socket->flush();
+                socket->waitForBytesWritten();
+
 
                 double percentage(this->totSizeWritten/(double)this->totSize*100);
 
@@ -259,6 +265,8 @@ void WorkerThread::run()
 
                 emit processEvents();
 
+                //msleep(1000);
+
             }
 
             file->close();
@@ -269,6 +277,7 @@ void WorkerThread::run()
     }
 
     //handle the stop of the transfer in a clean way
+    qDebug() << "All files sent";
 
     emit finished(position);
 }
