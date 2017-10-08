@@ -83,6 +83,9 @@ public slots:
     void handleRemTimeModifying(QString value, int node);
     void handleRemTimeModifying(QString value);
 
+
+    void errorsHandler(int node, QString error);
+
 protected:
     //this method has to be rewritten because we don't want to close the application when
     //the window is closed

@@ -15,13 +15,7 @@ LoadingWheel::LoadingWheel(QWidget *parent) :
     ui->setupUi(this);
     this->progress=0;
 
-    //to remove the title bar
-    setWindowFlags(Qt::Window | Qt::FramelessWindowHint) ;
-
     setWindowTitle("Receiving files...");
-
-    //to make the background disappear
-    //this->setAttribute(Qt::WA_TranslucentBackground, true);
 
     this->resize(100,110);
 
