@@ -37,6 +37,11 @@ void Users::removeUser(const QString &ip){
 
 shared_ptr<User> Users::getUser(const QString &ip){
 
+    if (users.find(ip) == users.end()){
+        qDebug() << "This IP is not in the user list";
+        return nullptr;
+    }
+
     return users.at(ip);
 }
 

@@ -26,6 +26,11 @@ void SocketThreadThumb::run()
 
     usr = users->getUser(m_socket->peerAddress().toString());
 
+    if (usr == nullptr){
+        qDebug() << "Cannot receive thumb, usr not in user list";
+        QThread::quit();
+    }
+
     connect(m_socket, SIGNAL(readyRead()), this, SLOT(onReadyRead()), Qt::DirectConnection);
     connect(m_socket, SIGNAL(disconnected()), this, SLOT(onDisconnected()), Qt::DirectConnection);
     connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(onError(QAbstractSocket::SocketError)), Qt::DirectConnection);
