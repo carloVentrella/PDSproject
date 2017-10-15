@@ -51,7 +51,7 @@ discovery::discovery(QHostAddress addr, quint16 port, shared_ptr<Users> users,  
     connect(garbageCollectionTimer.get(), SIGNAL(timeout()), this, SLOT(garbage()));
 
     // Send a ready message without waiting the timer
-    notify();
+    notify(HELLO);
 
     readyMessageTimer->start(3000);
     garbageCollectionTimer->start(7000);
@@ -66,7 +66,7 @@ void discovery::readyRead()
     QHostAddress sender;
     quint16 senderPort;
     QString username;
-    QString msg;
+    int msg;
     QString ip;
     QIcon thumb;
 
@@ -88,52 +88,53 @@ void discovery::readyRead()
         QJsonDocument doc = QJsonDocument::fromBinaryData(buffer);
         QJsonObject jsonResponse = doc.object();
 
+        msg = jsonResponse["MSG"].toInt();
         username = jsonResponse["USR"].toString().toUtf8().constData();
-        msg = jsonResponse["MSG"].toString().toUtf8().constData();
-
         ip =  sender.toString();
 
-        qDebug() << "Message from: ["<< ip << "," << senderPort << "]";
+        qDebug() << "Msg : " << msg;
+        if (msg > 3){
+            qDebug () << "Unknown message";
+            return;
+        }
 
-        if ( msg == "Ready" ){
+        qDebug() << msg << " Message from: ["<< ip << "," << senderPort << "]";
+        shared_ptr<User> user;
 
-            if (this->users->contains(ip)){
+        if (this->users->contains(ip)){
 
-                shared_ptr<User> user(this->users->getUser(ip));
-
-                // update user lifetime
-                user->stillAlive();
-                return;
-            }
-
-           // Add user to the list
-           shared_ptr<User> user(new User());
-           user->setIP(ip);
-           user->setUsername(username);
-
-           this->users->addUser(user);
-           qDebug() << "New user added: [" << username << "]";
-
-           // if a new user has been added I have to send a new notification...
-           this->notify();
-           // ...and my thumbnail
-           sendThumb(QHostAddress( user->getIP() ));
-
-        } else if (msg == "Quitting") {
-
-            // Remove user from the list
-            this->users->removeUser(ip);
-            qDebug() << "User " << username << "removed" << username;
+            // update user lifetime
+            user = this->users->getUser(ip);
+            user->stillAlive();
 
         } else {
 
-            qDebug() << "Unknown command";
+            // Add user to the list
+            user = make_shared<User>();
+            user->setIP(ip);
+            user->setUsername(username);
+
+            this->users->addUser(user);
+            qDebug() << "New user added: [" << username << "]";
+
+            // if a new user has been added I have to send a new notification,
+            // and I want its thumb
+            this->notify(THUMBREQ);
+
         }
+
+        /* The thumb is sent only on explicit request
+         * In this way I'm sure the receiver has the transmitter
+         * in its user list
+         */
+        if (msg==THUMBREQ)
+            sendThumb(QHostAddress( user->getIP() ));
+
     }
 
 }
 
-void discovery::notify(){
+void discovery::notify(MESSAGE msg){
 
     QJsonObject jsonRequest;
 
@@ -147,7 +148,8 @@ void discovery::notify(){
         return;
 
     QString user = curUsr->getUsername();
-    QString msg("Ready");
+
+    qDebug() << "Sending " << msg;
 
     jsonRequest["USR"]=user;
     jsonRequest["MSG"]=msg;

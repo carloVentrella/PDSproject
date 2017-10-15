@@ -7,6 +7,7 @@
 #include <QNetworkInterface>
 #include <QList>
 #include <users.h>
+#include <map>
 
 class discovery : public QObject
 {
@@ -26,9 +27,12 @@ public:
         return instance;
     }
 
+    // Type of UDP messages
+    enum MESSAGE { READY, HELLO, THUMBREQ };
+
 public slots:
     void readyRead();
-    void notify();
+    void notify(MESSAGE msg = READY);
     void garbage();
     void thumbSenderError(QString error);
 
