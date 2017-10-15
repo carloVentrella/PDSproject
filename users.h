@@ -16,16 +16,16 @@ class Users: public QObject
 public:
     Users();
     void addUser(shared_ptr<User>);
-    void removeUser(const string &key);
-    shared_ptr<User> getUser(const string &key);
-    bool contains(const string &key);
+    void removeUser(const QString &key);
+    shared_ptr<User> getUser(const QString &key);
+    bool contains(const QString &key);
     size_t size();
     void garbageCollection();
 
-    map<string, shared_ptr<User>> users;
+    map<QString, shared_ptr<User>> users;
 
 signals:
-    void modifiedUsersMap(string whatsNeeded,bool state);
+    void modifiedUsersMap(QString whatsNeeded,bool state);
 
 private:
     mutex mtx;

@@ -3,22 +3,22 @@
 
 #include <qdebug.h>
 
-std::string User::getIP() const
+QString User::getIP() const
 {
     return IP;
 }
 
-void User::setIP(const std::string &value)
+void User::setIP(const QString &value)
 {
     IP = value;
 }
 
-std::string User::getUsername() const
+QString User::getUsername() const
 {
     return username;
 }
 
-void User::setUsername(const std::string &value)
+void User::setUsername(const QString &value)
 {
     username = value;
 }
@@ -36,12 +36,13 @@ bool User::isThumbnailChanged() const
 void User::setThumbnailChanged(bool value)
 {
     this->thumbnailChanged = value;
+    emit modifiedThumb(this->getThumbnail(),this->getUsername());
 }
 
 void User::setThumbnail(const QIcon &value)
 {
     thumbnail = value;
-    this->thumbnailChanged = true;
+    setThumbnailChanged(true);
 }
 
 void User::stillAlive()
@@ -53,7 +54,7 @@ void User::stillAlive()
 bool User::isStillAlive() const
 {
     chrono::seconds now = duration_cast< seconds >( system_clock::now().time_since_epoch());
-    return now < (this->silentFrom + User::MAX_SILENT);
+    return now < (this->silentFrom + chrono::seconds(10));
 
 }
 
@@ -63,7 +64,3 @@ seconds User::getSilentFrom() const
     return this->silentFrom;
 }
 
-User::User()
-{
-
-}

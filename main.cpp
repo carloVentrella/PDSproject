@@ -1,6 +1,6 @@
 #include "settingswindow.h"
 #include "settings.h"
-#include "tcpserver.h"
+#include "tcptransferserver.h"
 #include "userswindow.h"
 #include "discovery.h"
 
@@ -15,6 +15,8 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QFileInfoList>
+
+#include "tcpthumbserver.h"
 
 int new_selection(void);
 void createFileList(QFileInfoList FileInfoList);
@@ -31,9 +33,6 @@ void signal_handler(int sig_no){
     if (sig_no == SIGUSR1)
         new_selection();
 }
-
-// Example paramenters, should be read from config
-chrono::seconds User::MAX_SILENT = chrono::seconds(10);
 
 int main(int argc, char *argv[])
 {
@@ -52,31 +51,19 @@ int main(int argc, char *argv[])
 
     users = std::make_shared<Users>();
 
+    QHostAddress serverAddr("127.0.0.1");
+    qint16 serverPort = 5555;
+
     // The scout is in charge of handling the user list.
     // It sends and receives advertisements
     scout = discovery::getInstance(groupAddress,port, users);
 
-    QHostAddress serverAddr("127.0.0.1");
-    qint16 serverPort = 5555;
-
-
     Server tcpServer(serverAddr, serverPort);
     tcpServer.start();
 
-    string image3=":/thumbnails/6.png";
-    string image4=":/thumbnails/4.png";
-
-    shared_ptr<User> us3(new User());
-    us3->setUsername("Prof2");
-    us3->setIP(std::to_string(4));
-    us3->setThumbnail(QIcon(image3.c_str()));
-    users->addUser(us3);
-
-    shared_ptr<User> us4(new User());
-    us4->setUsername("Prof1");
-    us4->setIP(std::to_string(5));
-    us4->setThumbnail(QIcon(image4.c_str()));
-    users->addUser(us4);
+    // start TCP thumb server
+    ThumbServer server(QHostAddress::AnyIPv4,serverPort+1,users);
+    server.start();
 
     return a.exec();
 }

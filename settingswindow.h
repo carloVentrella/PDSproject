@@ -38,7 +38,7 @@ public:
     void setVisible(bool visible) override;
 
 public slots:
-    void setDestination(string destination);
+    void setDestination(QString destination);
 
     //if the user selects a new icon, settings have to be rewritten
     void setIconChanged(QString icon);

@@ -1,5 +1,6 @@
 #include "users.h"
 #include <iostream>
+#include "qdebug.h"
 
 Users::Users(){
 
@@ -12,30 +13,29 @@ void Users::addUser(shared_ptr<User> u){
 
     u->stillAlive();
 
-    std::cout << "User ["<< u->getIP() <<"] added" << std::endl;
+    qDebug() << "User ["<< u->getIP() <<"] added";
     emit modifiedUsersMap(u->getIP(),true);
 }
 
-void Users::removeUser(const string &ip){
+void Users::removeUser(const QString &ip){
 
     mtx.lock();
-    string username;
-    for(map<string,shared_ptr<User>>::iterator iter=users.begin();iter!=users.end();iter++)
+    QString username;
+    for(map<QString,shared_ptr<User>>::iterator iter=users.begin();iter!=users.end();iter++)
     {
         if(iter->first==ip){
             username=iter->second->getUsername();
             break;
         }
     }
+    qDebug() << "Removing user with ip ["<< ip <<"]";
     users.erase(ip);
     mtx.unlock();
-
-    std::cout << "User ["<< ip <<"] removed" << std::endl;
 
     emit modifiedUsersMap(username, false);
 }
 
-shared_ptr<User> Users::getUser(const string &ip){
+shared_ptr<User> Users::getUser(const QString &ip){
 
     return users.at(ip);
 }
@@ -49,12 +49,12 @@ void Users::garbageCollection(){
     std::cout << "Garbage collection started" << std::endl;
 
     mtx.lock();
-    string username;
-    string ip;
+    QString username;
+    QString ip;
 
     std::cout << "Size: " << users.size() << std::endl;
 
-    for(map<string,shared_ptr<User>>::iterator iter=users.begin();iter!=users.end();)
+    for(map<QString,shared_ptr<User>>::iterator iter=users.begin();iter!=users.end();)
     {
         if(!iter->second->isStillAlive()){
             username=iter->second->getUsername();
@@ -69,12 +69,12 @@ void Users::garbageCollection(){
 
     mtx.unlock();
 
-    std::cout << "User ["<< username <<"] removed" << std::endl;
+    qDebug() << "User ["<< username <<"] removed";
 
-    std::cout << "Garbage collection finished" << std::endl;
+    qDebug() << "Garbage collection finished";
 
 }
 
-bool Users::contains(const string &ip){
+bool Users::contains(const QString &ip){
     return !( users.find(ip) == users.end());
 }

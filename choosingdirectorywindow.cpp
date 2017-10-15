@@ -10,8 +10,8 @@ ChoosingDirectoryWindow::ChoosingDirectoryWindow(QWidget *parent) :
     fileSystemModel=new QFileSystemModel();
 
     //finding the root of the treeView
-    std::string path=Settings::getInstance().getRoot();
-    fileSystemModel->setRootPath(path.c_str());
+    QString path=Settings::getInstance().getRoot();
+    fileSystemModel->setRootPath(path);
 
     //filtering what to show (is useless to show files as we want to choose the destination directory)
     fileSystemModel->setFilter(QDir::NoDotAndDotDot | QDir::Dirs);
@@ -20,17 +20,17 @@ ChoosingDirectoryWindow::ChoosingDirectoryWindow(QWidget *parent) :
     ui->tree->setSortingEnabled(true);
 
     ui->tree->setModel(fileSystemModel);
-    ui->tree->setRootIndex(fileSystemModel->index(path.c_str()));
+    ui->tree->setRootIndex(fileSystemModel->index(path));
 
     setWindowTitle("Select Directory");
 
     this->setDestination(Settings::getInstance().getDestination());
 
     //setting the text of the label related to the chosen destination dir (to verify what one was chosen)
-    ui->directoryLabel->setText(QString::fromUtf8(this->destination.c_str()));
+    ui->directoryLabel->setText(this->destination);
 
 
-    QObject::connect(this, SIGNAL(destinationChanged(string)), this->parent(), SLOT(setDestination(string)));
+    QObject::connect(this, SIGNAL(destinationChanged(QString)), this->parent(), SLOT(setDestination(QString)));
 }
 
 ChoosingDirectoryWindow::~ChoosingDirectoryWindow()
@@ -42,27 +42,27 @@ ChoosingDirectoryWindow::~ChoosingDirectoryWindow()
 
 void ChoosingDirectoryWindow::on_tree_doubleClicked(const QModelIndex &index)
 {
-    this->setTmp(this->fileSystemModel->fileInfo(index).filePath().toStdString());
+    this->setTmp(this->fileSystemModel->fileInfo(index).filePath());
 
-    ui->directoryLabel->setText(QString::fromUtf8(this->getTmp().c_str()));
+    ui->directoryLabel->setText(this->getTmp());
 }
 
-std::string ChoosingDirectoryWindow::getTmp() const
+QString ChoosingDirectoryWindow::getTmp() const
 {
     return tmp;
 }
 
-void ChoosingDirectoryWindow::setTmp(const std::string &value)
+void ChoosingDirectoryWindow::setTmp(const QString &value)
 {
     tmp = value;
 }
 
-std::string ChoosingDirectoryWindow::getDestination() const
+QString ChoosingDirectoryWindow::getDestination() const
 {
     return destination;
 }
 
-void ChoosingDirectoryWindow::setDestination(const std::string &value)
+void ChoosingDirectoryWindow::setDestination(const QString &value)
 {
     destination = value;
 }

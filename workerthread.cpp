@@ -60,9 +60,6 @@ void WorkerThread::run()
 {
     emit processEvents();
 
-    // TODO remove
-    int hr = 100;
-
     QTcpSocket *socket = new QTcpSocket;
     // when the thread finishes deallocate its objects
     connect(socket, SIGNAL(disconnected()), socket, SLOT(deleteLater()));
@@ -76,30 +73,8 @@ void WorkerThread::run()
         qDebug() << "Socket can't connect";
         delete socket;
 
-
-        emit errorHandling(position, "Socket can't connect");
-        //modifying the bar of the single user
-        emit progBarModifying(100,position);
-
-        //modifying the window
-        emit processEvents();
-
-        //modifying the remaining time for the single user
-        emit remTimeModifying(QString::fromStdString(std::to_string(0).append(" seconds left").c_str()), position);
-
-        //modifying the general progress bar
-        emit progBarModifying();
-
-        emit processEvents();
-
-        //modifying the general remaining time
-        emit remTimeModifying(QString::fromStdString(to_string(100-this->t->getProgressBar()->value()).append(" seconds left").c_str()));
-
-        emit processEvents();
-
-        //handle the stop of the transfer in a clean way
-        emit finished(position);
-
+        emit errorHandling(position, "Socket can't connect"); 
+        updateProgresses(position, 100, 0, 100-this->t->getProgressBar()->value());
         return;
     }    
 
@@ -119,13 +94,13 @@ void WorkerThread::run()
     out.device()->seek(0);
 
     // send username
-    out << Settings::getInstance().getCurrentUser()->getUsername().c_str();
+    out << Settings::getInstance().getCurrentUser()->getUsername().toUtf8();
     out.device()->seek(0);
     out << (quint32)(block.size() - sizeof(quint32));
     written = socket->write(block);
     socket->flush();
 
-    qDebug() << "Bytes written" << written;
+    qDebug() << Settings::getInstance().getCurrentUser()->getUsername() << " written" << written;
 
     block.clear();
     out.device()->seek(0);
@@ -151,28 +126,10 @@ void WorkerThread::run()
     if (response == "REF")
     {
         emit errorHandling(position, "REFUSED");
-        //modifying the bar of the single user
-        emit progBarModifying(100,position);
-
-        //modifying the window
-        emit processEvents();
-
-        //modifying the remaining time for the single user
-        emit remTimeModifying(QString::fromStdString(std::to_string(0).append(" seconds left").c_str()), position);
-
-        //modifying the general progress bar
-        emit progBarModifying();
-
-        emit processEvents();
-
-        //modifying the general remaining time
-        emit remTimeModifying(QString::fromStdString(to_string(100-this->t->getProgressBar()->value()).append(" seconds left").c_str()));
-
-        emit processEvents();
+        // TODO fix wrong parameter
+        updateProgresses(position, 100, 0, 100-this->t->getProgressBar()->value());
         return;
     }
-
-    int globalStartTime = QDateTime::currentSecsSinceEpoch();
 
     for (std::shared_ptr<QFile> file : files){
 
@@ -214,28 +171,9 @@ void WorkerThread::run()
                 qDebug("Cannot open file, abort");
                 delete socket;
 
-                emit errorHandling(position, "Cannot open file, abort");
-                //modifying the bar of the single user
-                emit progBarModifying(100,position);
-
-                //modifying the window
-                emit processEvents();
-
-                //modifying the remaining time for the single user
-                emit remTimeModifying(QString::fromStdString(std::to_string(0).append(" seconds left").c_str()), position);
-
-                //modifying the general progress bar
-                emit progBarModifying();
-
-                emit processEvents();
-
-                //modifying the general remaining time
-                emit remTimeModifying(QString::fromStdString(to_string(100-this->t->getProgressBar()->value()).append(" seconds left").c_str()));
-
-                emit processEvents();
-
-                //handle the stop of the transfer in a clean way
-                emit finished(position);
+                emit errorHandling(position, "Cannot open file, abort");                
+                // TODO fix wrong parameter
+                updateProgresses(position, 100, 0, 100-this->t->getProgressBar()->value());
 
                 return;
             }
@@ -299,27 +237,9 @@ void WorkerThread::run()
                     delete socket;
 
                     emit errorHandling(position, "Cannot write on socket");
-                    //modifying the bar of the single user
-                    emit progBarModifying(100,position);
 
-                    //modifying the window
-                    emit processEvents();
-
-                    //modifying the remaining time for the single user
-                    emit remTimeModifying(QString::fromStdString(std::to_string(0).append(" seconds left").c_str()), position);
-
-                    //modifying the general progress bar
-                    emit progBarModifying();
-
-                    emit processEvents();
-
-                    //modifying the general remaining time
-                    emit remTimeModifying(QString::fromStdString(to_string(100-this->t->getProgressBar()->value()).append(" seconds left").c_str()));
-
-                    emit processEvents();
-
-                    //handle the stop of the transfer in a clean way
-                    emit finished(position);
+                    // TODO fix wrong parameter
+                    updateProgresses(position, 100, 0, 100);
 
                     return;
                 }
@@ -339,27 +259,9 @@ void WorkerThread::run()
 
                 qDebug() << "remaining time: " << globalEstimate << "s";
 
-
                 double percentage(this->totSizeWritten/(double)this->totSize*100);
 
-                //modifying the bar of the single user
-                emit progBarModifying(percentage,position);
-
-                //modifying the window
-                emit processEvents();
-
-                //modifying the remaining time for the single user
-                emit remTimeModifying(QString::fromStdString(std::to_string(localEstimate).append(" seconds left").c_str()), position);
-
-                //modifying the general progress bar
-                emit progBarModifying();
-
-                emit processEvents();
-
-                //modifying the general remaining time (total)
-                emit remTimeModifying(QString::fromStdString(to_string(globalEstimate).append(" seconds left").c_str()));
-
-                emit processEvents();
+                updateProgresses(position, percentage, localEstimate, globalEstimate);
 
                 //msleep(1000);
 
@@ -382,5 +284,30 @@ void WorkerThread::run()
     qDebug() << "Response: " << result;
 
     emit finished(position);
+}
+
+void WorkerThread::updateProgresses(int position, int percentage, int userRemtime, int globalRemtime){
+
+    emit progBarModifying(percentage, position);
+
+    //modifying the window
+    emit processEvents();
+
+    //modifying the remaining time for the single user
+    emit remTimeModifying(QString::fromStdString(std::to_string(userRemtime).append(" seconds left").c_str()), position);
+
+    //modifying the general progress bar
+    emit progBarModifying();
+
+    emit processEvents();
+
+    //modifying the general remaining time
+    emit remTimeModifying(QString::fromStdString(to_string(globalRemtime).append(" seconds left").c_str()));
+
+    emit processEvents();
+
+    //handle the stop of the transfer in a clean way
+    emit finished(position);
+
 }
 

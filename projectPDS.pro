@@ -38,11 +38,14 @@ SOURCES += main.cpp\
     transfer.cpp \
     workerthread.cpp \
     socketthread.cpp \
-    tcpserver.cpp \
     tcpclient.cpp \
     choosingiconwindow.cpp \
     askconfirmationwindow.cpp \
-    loadingwheel.cpp
+    loadingwheel.cpp \
+    socketthreadthumb.cpp \
+    tcptransferserver.cpp \
+    tcpthumbserver.cpp \
+    thumbsender.cpp
 
 HEADERS  += \
     user.h \
@@ -58,11 +61,14 @@ HEADERS  += \
     transfer.h \
     workerthread.h \
     socketthread.h \
-    tcpserver.h \
     tcpclient.h \
     choosingiconwindow.h \
     askconfirmationwindow.h \
-    loadingwheel.h
+    loadingwheel.h \
+    socketthreadthumb.h \
+    tcptransferserver.h \
+    tcpthumbserver.h \
+    thumbsender.h
 
 FORMS    += \
     settingswindow.ui \

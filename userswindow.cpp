@@ -42,26 +42,28 @@ UsersWindow::UsersWindow(shared_ptr<discovery> scout, QList<std::shared_ptr<QFil
     int i=0;
     int j;
 
-    for(std::map<string, shared_ptr<User>>::iterator iter=this->u.get()->users.begin(); iter!=this->u.get()->users.end(); iter++)
+    for(std::map<QString, shared_ptr<User>>::iterator iter=this->u.get()->users.begin(); iter!=this->u.get()->users.end(); iter++)
     {
         for(j=0;j<NUM_COL && n<num_widget;j++)
         {
             User* user=iter->second.get();
             QIcon p;
 
+            //connect(user, &User::modifiedThumb, this, &UsersWindow::handleModThumb);
+            connect(user, SIGNAL(modifiedThumb(QIcon,QString)), this, SLOT(handleModThumb(QIcon,QString)));
             p=user->getThumbnail();
 
             //username
-            string us=user->getUsername();
+            QString us=user->getUsername();
             //IP
-            string ip=user->getIP();
+            QString ip=user->getIP();
 
             QToolButton* button = new QToolButton(this);
             button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
             button->setIcon(p);
             button->setIconSize(QSize(100,100));
 
-            button->setText(us.c_str());
+            button->setText(us);
             button->setAutoRaise(true);
             button->setCheckable(true);
 
@@ -119,19 +121,17 @@ UsersWindow::UsersWindow(shared_ptr<discovery> scout, QList<std::shared_ptr<QFil
             //here we have to handle the sharing with the users that have the checkbox checked
 
             //username
-            string s=c->text().toStdString();
-
-            cout<<s<<endl;
+            QString s=c->text();
 
             if(c->isChecked())
             {
                 flag=1;
-                cout<<s<<" is checked"<<endl;
+                qDebug()<<s<<" is checked";
 
                 //its IP
-                string ip=this->usersMap.find(s).value();
+                QString ip=this->usersMap.find(s).value();
 
-                cout<<" and this is its ip "<<ip<<endl;
+                qDebug()<<" and this is its ip "<<ip;
 
                 try
                 {
@@ -143,7 +143,7 @@ UsersWindow::UsersWindow(shared_ptr<discovery> scout, QList<std::shared_ptr<QFil
                 catch(...)
                 {
                     QString warning="User ";
-                    warning.append(QString::fromStdString(s));
+                    warning.append(s);
                     warning.append(" no longer active");
                     QMessageBox::warning(this, "Warning", warning);
                 }
@@ -182,10 +182,10 @@ UsersWindow::UsersWindow(shared_ptr<discovery> scout, QList<std::shared_ptr<QFil
     this->setLayout(centralLayout);
 
 
-    connect(this->u.get(), SIGNAL(modifiedUsersMap(string,bool)),this, SLOT(handleNewOrRemovedUsers(string,bool)));
+    connect(this->u.get(), SIGNAL(modifiedUsersMap(QString,bool)),this, SLOT(handleNewOrRemovedUsers(QString,bool)));
 
 
-    connect((this->scout.get()), &discovery::modifiedThumb, this, &UsersWindow::handleModThumb);
+    //connect((this->scout.get()), &discovery::modifiedThumb, this, &UsersWindow::handleModThumb);
 
 }
 
@@ -207,14 +207,14 @@ void UsersWindow::closeEvent(QCloseEvent *event)
 
 }
 
-void UsersWindow::handleNewOrRemovedUsers(string whatsNeeded, bool state)
+void UsersWindow::handleNewOrRemovedUsers(QString whatsNeeded, bool state)
 {
     if(state)
     {
         //user added
         cout<<"handle for adding users"<<endl;
 
-        string IP=whatsNeeded;
+        QString IP=whatsNeeded;
 
         shared_ptr<User> currentUser=this->u->users.at(IP);
 
@@ -224,7 +224,7 @@ void UsersWindow::handleNewOrRemovedUsers(string whatsNeeded, bool state)
 
         while(iter.hasNext())
         {
-            if(iter.next()->text().toStdString()==currentUser->getUsername())
+            if(iter.next()->text()==currentUser->getUsername())
             {
                 flag=1;
                 break;
@@ -239,16 +239,16 @@ void UsersWindow::handleNewOrRemovedUsers(string whatsNeeded, bool state)
             p=currentUser->getThumbnail();
 
             //username
-            string us=currentUser->getUsername();
+            QString us=currentUser->getUsername();
             //IP
-            string ip=currentUser->getIP();
+            QString ip=currentUser->getIP();
 
             QToolButton* button = new QToolButton(this);
             button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
             button->setIcon(p);
             button->setIconSize(QSize(100,100));
 
-            button->setText(us.c_str());
+            button->setText(us);
             button->setAutoRaise(true);
             button->setCheckable(true);
 
@@ -295,7 +295,7 @@ void UsersWindow::handleNewOrRemovedUsers(string whatsNeeded, bool state)
         //user removed
         cout<<"handle for removing users"<<endl;
 
-        string username=whatsNeeded;
+        QString username=whatsNeeded;
 
         //I find the position of the current user over my layout
         int pos=0;
@@ -303,7 +303,7 @@ void UsersWindow::handleNewOrRemovedUsers(string whatsNeeded, bool state)
 
         while(iter.hasNext())
         {
-            if(iter.next()->text().toStdString()==username)
+            if(iter.next()->text()==username)
             {
                 break;
             }
@@ -316,14 +316,14 @@ void UsersWindow::handleNewOrRemovedUsers(string whatsNeeded, bool state)
     }
 }
 
-void UsersWindow::handleModThumb(const QIcon &value, string username)
+void UsersWindow::handleModThumb(const QIcon &value, QString username)
 {
     //to find which label to update
     QListIterator<QToolButton *> iter(this->allButtons);
     int pos=0;
     while(iter.hasNext())
     {
-        if(iter.next()->text().toStdString()==username)
+        if(iter.next()->text()==username)
         {
             break;
         }

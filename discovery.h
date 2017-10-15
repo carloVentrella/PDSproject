@@ -15,6 +15,8 @@ class discovery : public QObject
 public:
     //explicit discovery(QHostAddress addr, quint16 port, shared_ptr<Users> users, QObject *parent = 0);
     void sendMessage(QJsonObject);
+    void sendThumb(QHostAddress addr);
+    void sendThumb();
 
     ~discovery();
 
@@ -24,13 +26,11 @@ public:
         return instance;
     }
 
-signals:
-    void modifiedThumb(const QIcon &value, string username);
-
 public slots:
     void readyRead();
-    void notify(bool thumb=false);
+    void notify();
     void garbage();
+    void thumbSenderError(QString error);
 
 private:
 
@@ -44,10 +44,9 @@ private:
     shared_ptr<QTimer> garbageCollectionTimer;
 
     discovery(QHostAddress addr, quint16 port, shared_ptr<Users> users, QObject *parent = 0);
-
     discovery(discovery const&);
-
     void operator=(discovery const&);
+
 
 };
 

@@ -156,10 +156,10 @@ Transfer::Transfer(QList<shared_ptr<User> > selected_users, QList< std::shared_p
     {
         shared_ptr<User> u=iter.next();
 
-        string sending=" - Sending to ";  //for each transfer I know who I am transferring to
+        QString sending(" - Sending to ");  //for each transfer I know who I am transferring to
         sending.append(u.get()->getUsername());
 
-        QLabel* label=new QLabel(QString::fromStdString(sending),this);
+        QLabel* label=new QLabel(sending,this);
         label->setVisible(false);
         this->usersLabelPerSingleTransfer.push_back(label);
         this->verticalLayout->addWidget(label);
@@ -229,7 +229,7 @@ Transfer::Transfer(QList<shared_ptr<User> > selected_users, QList< std::shared_p
     for(int pos=0;pos<this->selected_users.size();pos++)
     {
         WorkerThread* t=new WorkerThread(this, this, pos);
-        t->setServerAddr(QHostAddress(QString::fromStdString(this->selected_users[pos]->getIP())));
+        t->setServerAddr(QHostAddress(this->selected_users[pos]->getIP()));
 
         connect(t,SIGNAL(finished(int)), this,SLOT(transferEnd(int))); //signal to handle the end of the work in each thread
         connect(t, SIGNAL(processEvents()), this, SLOT(handleProcessEvents())); //signal to update the window
@@ -342,7 +342,7 @@ int Transfer::getFlagAtNode(int node)
 void Transfer::transferBegin()
 {
     //I want to show who are the users I want to send files
-    string users;
+    QString users;
     QListIterator<shared_ptr<User>> iter(this->selected_users);
     while(iter.hasNext())
     {
@@ -355,7 +355,7 @@ void Transfer::transferBegin()
         }
     }
 
-    usersLabel->setText(QString::fromStdString(users));
+    usersLabel->setText(users);
 
     qApp->processEvents();
 

@@ -9,7 +9,7 @@
 #include <QDesktopServices>
 #include <QFileSystemModel>
 #include <QDir>
-#include <string>
+
 
 #include "settings.h"
 
@@ -25,11 +25,11 @@ public:
     explicit ChoosingDirectoryWindow(QWidget *parent = 0);
     ~ChoosingDirectoryWindow();
 
-    std::string getDestination() const;
-    void setDestination(const std::string &value);
+    QString getDestination() const;
+    void setDestination(const QString &value);
 
-    std::string getTmp() const;
-    void setTmp(const std::string &value);
+    QString getTmp() const;
+    void setTmp(const QString &value);
 
 private slots:
 
@@ -45,14 +45,14 @@ private slots:
 signals:
     //this method has to be called when the "Apply" button is pushed and we have to
     //emit a signal to the SettingsWindow
-    void destinationChanged(string destination);
+    void destinationChanged(QString destination);
 
 private:
     //download destination dir
-    std::string destination;
+    QString destination;
 
     //temporary directory, to not compromise the real download destination dir
-    std::string tmp;
+    QString tmp;
 
     QFileSystemModel *fileSystemModel;
 

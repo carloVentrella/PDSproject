@@ -2,15 +2,15 @@
 
 #include <iostream>
 
-string Settings::getDestination() const
+QString Settings::getDestination() const
 {
     return destination;
 }
 
-void Settings::setDestination(const string &value)
+void Settings::setDestination(const QString &value)
 {
     destination = value;
-    this->SaveSetting("downloadDir", QString::fromStdString(value));
+    this->SaveSetting("downloadDir", value);
 }
 
 bool Settings::getFromAll() const
@@ -39,7 +39,7 @@ void Settings::setOn(bool value)
 
 void Settings::SaveSetting(const QString &key, const QVariant &variant)
 {
-    QSettings settings(QString::fromStdString(companyName), QString::fromStdString(appName));
+    QSettings settings(companyName, appName);
     settings.setValue(key, variant);
 }
 
@@ -47,39 +47,39 @@ void Settings::LoadSettings()
 {
     //finding the root of the fileSystemTree
     //it is necessary to discover the username
-    std::string user=qgetenv("USER").toStdString();
-    std::string path="/home/";
-    std::string thumb=":/thumbnails/3.png";
+    QString user=qgetenv("USER");
+    QString path("/home/");
+    QString thumb(":/thumbnails/3.png");
     path.append(user);
 
 
-    QSettings settings(QString::fromStdString(companyName), QString::fromStdString(appName));
+    QSettings settings(companyName, appName);
 
-    destination=settings.value("downloadDir", QString::fromStdString(path)).toString().toStdString();
-    root=settings.value("rootDir", QString::fromStdString(path)).toString().toStdString();
+    destination = settings.value("downloadDir", path).toString();
+    root=settings.value("rootDir", path).toString();
     fromAll=settings.value("downloadWithoutConfirmation", true).toBool();
     on=settings.value("public", true).toBool();
-    thumbPath=settings.value("user/icon", QString::fromStdString(thumb.c_str())).toString();
+    thumbPath=settings.value("user/icon", thumb).toString();
 
-    currentUser = std::make_shared<User>(User());
+    currentUser = std::make_shared<User>();
 
-    currentUser->setIP(settings.value("user/IP", "239.255.43.21").toString().toStdString());
-    currentUser->setUsername(settings.value("user/username",QString::fromStdString(user)).toString().toStdString());
+    currentUser->setIP(settings.value("user/IP", "239.255.43.21").toString());
+    currentUser->setUsername(settings.value("user/username",user).toString());
     currentUser->setThumbnail(QIcon(thumbPath));
     multicastPort=settings.value("discovery/multicastPort", 45454).toInt();
 
     TCPServerPort = settings.value("TCPServerPort",5555).toInt();
 }
 
-string Settings::getRoot() const
+QString Settings::getRoot() const
 {
     return root;
 }
 
-void Settings::setRoot(const string &value)
+void Settings::setRoot(const QString &value)
 {
     root = value;
-    this->SaveSetting("rootDir", QString::fromStdString(value));
+    this->SaveSetting("rootDir",value);
 }
 
 shared_ptr<User> Settings::getCurrentUser() const
@@ -90,9 +90,8 @@ shared_ptr<User> Settings::getCurrentUser() const
 void Settings::setCurrentUser(const shared_ptr<User> value)
 {
     currentUser = value;
-    this->SaveSetting("user/IP", QString::fromStdString(
-                          value->getIP()));
-    this->SaveSetting("user/username", QString::fromStdString(value->getUsername()));
+    this->SaveSetting("user/IP", value->getIP());
+    this->SaveSetting("user/username", value->getUsername());
 }
 
 int Settings::getMulticastPort() const
@@ -123,22 +122,22 @@ Settings::Settings()
     LoadSettings();
 }
 
-string Settings::getAppName() const
+QString Settings::getAppName() const
 {
     return appName;
 }
 
-void Settings::setAppName(const string &value)
+void Settings::setAppName(const QString &value)
 {
     appName = value;
 }
 
-string Settings::getCompanyName() const
+QString Settings::getCompanyName() const
 {
     return companyName;
 }
 
-void Settings::setCompanyName(const string &value)
+void Settings::setCompanyName(const QString &value)
 {
     companyName = value;
 }
@@ -148,9 +147,9 @@ QHostAddress Settings::getTCPServerAddr() const
     return TCPServerAddr;
 }
 
-void Settings::setTCPServerAddr(const string &ip)
+void Settings::setTCPServerAddr(const QString &ip)
 {
-    TCPServerAddr = QHostAddress( QString::fromStdString(ip) );
+    TCPServerAddr = QHostAddress( ip );
 }
 
 qint16 Settings::getTCPServerPort() const

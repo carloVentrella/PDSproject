@@ -1,6 +1,6 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
-#include <string>
+#include <QString>
 #include <QSettings>
 #include <QVariant>
 #include <QString>
@@ -14,10 +14,10 @@ using namespace std;
 class Settings
 {
 private:
-    string destination;
+    QString destination;
     bool fromAll;
     bool on;
-    string root;
+    QString root;
     shared_ptr<User> currentUser;
     int multicastPort;
 
@@ -33,16 +33,16 @@ private:
     Settings(Settings const&);              // Don't Implement
     void operator=(Settings const&);
 
-    string companyName="Bonsai";
-    string appName="PDSproject";
+    QString companyName="Bonsai";
+    QString appName="PDSproject";
 
 public:
-    string getDestination() const;
-    void setDestination(const string &value);
+    QString getDestination() const;
+    void setDestination(const QString &value);
     bool getFromAll() const;
     void setFromAll(bool value);
     QHostAddress getTCPServerAddr() const;
-    void setTCPServerAddr(const string &ip);
+    void setTCPServerAddr(const QString &ip);
     qint16 getTCPServerPort() const;
     void setTCPServerPort(const qint16 &port);
     bool getOn() const;
@@ -62,12 +62,12 @@ public:
     //this funcion reads the QSetting file
     void LoadSettings();
 
-    string getCompanyName() const;
-    void setCompanyName(const string &value);
-    string getAppName() const;
-    void setAppName(const string &value);
-    string getRoot() const;
-    void setRoot(const string &value);
+    QString getCompanyName() const;
+    void setCompanyName(const QString &value);
+    QString getAppName() const;
+    void setAppName(const QString &value);
+    QString getRoot() const;
+    void setRoot(const QString &value);
     shared_ptr<User> getCurrentUser() const;
     void setCurrentUser(const shared_ptr<User> value);
     int getMulticastPort() const;

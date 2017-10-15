@@ -61,7 +61,7 @@ SettingsWindow::~SettingsWindow()
 
 void SettingsWindow::setDefault()
 {
-    string destination=this->s->getDestination();
+    QString destination=this->s->getDestination();
     Settings::getInstance().setDestination(destination);
 
     if(Settings::getInstance().getFromAll()==1)
@@ -82,7 +82,7 @@ void SettingsWindow::setDefault()
         ui->onOffLabel->setText("private");
     }
 
-    ui->destinationLabel->setText(QString::fromUtf8(destination.c_str()));
+    ui->destinationLabel->setText(destination);
 
     //initial label of the user for the icon
     QString icon=Settings::getInstance().getThumbPath();
@@ -97,10 +97,10 @@ void SettingsWindow::setVisible(bool visible)
         QWidget::setVisible(visible);
 }
 
-void SettingsWindow::setDestination(string destination)
+void SettingsWindow::setDestination(QString destination)
 {
     Settings::getInstance().setDestination(destination);
-    ui->destinationLabel->setText(QString::fromUtf8(Settings::getInstance().getDestination().c_str()));
+    ui->destinationLabel->setText(Settings::getInstance().getDestination());
 }
 
 void SettingsWindow::setIconChanged(QString icon)

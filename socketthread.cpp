@@ -66,7 +66,7 @@ void SocketThread::onReadyRead()
     QDataStream in(m_socket);
     fileOpened = false;
     QFile target;
-    QString filePath = QString::fromStdString(Settings::getInstance().getDestination());
+    QString filePath = Settings::getInstance().getDestination();
 
     qint16 totBytes=m_socket->bytesAvailable();
     while ( (bytesAvailable = m_socket->bytesAvailable()) > 0){
@@ -107,13 +107,13 @@ void SocketThread::onReadyRead()
 
        // Set the username
        if (userName == ""){
-           userName = QString::fromUtf8(block);
+           userName = block;
            qDebug() << "Username: " << userName;
        }
        // set the amount of bytes to read
        else if (totSize == -1){
 
-           totSize = QString::fromUtf8(block).toInt();
+           totSize = block.toInt();
            qDebug() << "Tot size: " << totSize;
 
            if(!Settings::getInstance().getFromAll())

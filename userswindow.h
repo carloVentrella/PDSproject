@@ -42,9 +42,9 @@ public slots:
     //whichUser: which user has been removed or added
     //state: true->added
     //       false->removed
-    void handleNewOrRemovedUsers(string whatsNeeded, bool state);
+    void handleNewOrRemovedUsers(QString whatsNeeded, bool state);
 
-    void handleModThumb(const QIcon &value, string username);
+    void handleModThumb(const QIcon &value, QString username);
 
 signals:
     //this function begins the trasfer
@@ -60,7 +60,7 @@ private:
     QList< std::shared_ptr<QFile>> files;
 
     //this is necessary to find the IP from the username
-    QMap<string,string> usersMap;
+    QMap<QString,QString> usersMap;
 
     //list of users to be returned
     QList<shared_ptr<User>> selected_users;

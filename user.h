@@ -1,5 +1,6 @@
 #ifndef USER_H
 #define USER_H
+#include <QObject>
 #include <string>
 #include <QIcon>
 #include <chrono>
@@ -8,29 +9,33 @@
 using namespace std;
 using namespace chrono;
 
-class User
+class User: public QObject
 {
+    Q_OBJECT
 private:
-    string username;
-    string IP;
+    QString username;
+    QString IP;
     QIcon thumbnail;
     seconds silentFrom;
     bool thumbnailChanged;
 
 public:
-    User();
-    string getIP() const;
-    void setIP(const string &value);
-    string getUsername() const;
-    void setUsername(const string &value);
+    User(){}
+    QString getIP() const;
+    void setIP(const QString &value);
+    QString getUsername() const;
+    void setUsername(const QString &value);
     QIcon getThumbnail() const;
     bool isThumbnailChanged() const;
     void setThumbnailChanged(bool value);
     void setThumbnail(const QIcon &value);
     seconds getSilentFrom() const;
     bool isStillAlive() const;
-    static seconds MAX_SILENT;
     void stillAlive();
+
+signals:
+    void modifiedThumb(const QIcon &value, QString username);
+
 };
 
 #endif // USER_H

@@ -2,15 +2,18 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QBuffer>
-#include <string>
 #include <thread>
 #include <chrono>
 #include <iostream>
 #include <QTimer>
-#include <user.h>
 #include <memory>
 #include <QDateTime>
-#include <settings.h>
+#include <QThread>
+
+#include "user.h"
+#include "settings.h"
+#include "tcpthumbserver.h"
+#include "thumbsender.h"
 
 discovery::discovery(QHostAddress addr, quint16 port, shared_ptr<Users> users,  QObject *parent) : QObject(parent)
 {
@@ -21,16 +24,18 @@ discovery::discovery(QHostAddress addr, quint16 port, shared_ptr<Users> users,  
     this->port = port;
     this->users = users;
 
+    // UDP sockets
+
     socketIn = std::make_shared<QUdpSocket>(new QUdpSocket(this));
     socketOut = std::make_shared<QUdpSocket>(new QUdpSocket(this));
 
-    qDebug("Sockets ok");
+    qDebug() << "Sockets ok";
 
-    if (socketIn->bind(QHostAddress::AnyIPv4, this->port, QUdpSocket::DontShareAddress))
-        qDebug("Bind ok");
+    if (socketIn->bind(QHostAddress::AnyIPv4, this->port, QUdpSocket::ShareAddress))
+        qDebug() << "Bind ok";
 
     if (socketIn->joinMulticastGroup(this->addr))
-        qDebug("Joined multicast group");
+        qDebug() << "Joined multicast group";
 
     socketIn->setSocketOption(QAbstractSocket::ReceiveBufferSizeSocketOption,2000000);
 
@@ -45,17 +50,14 @@ discovery::discovery(QHostAddress addr, quint16 port, shared_ptr<Users> users,  
     garbageCollectionTimer = std::make_shared<QTimer>(new QTimer());
     connect(garbageCollectionTimer.get(), SIGNAL(timeout()), this, SLOT(garbage()));
 
-    // set ttl
-    this->socketOut->setSocketOption(QAbstractSocket::MulticastTtlOption, 2);
-
     // Send a ready message without waiting the timer
-    notify(true);
+    notify();
 
     readyMessageTimer->start(3000);
     garbageCollectionTimer->start(7000);
 
-
 }
+
 
 
 void discovery::readyRead()
@@ -63,9 +65,9 @@ void discovery::readyRead()
     QByteArray buffer;
     QHostAddress sender;
     quint16 senderPort;
-    string username;
-    string msg;
-    string ip;
+    QString username;
+    QString msg;
+    QString ip;
     QIcon thumb;
 
 
@@ -89,36 +91,15 @@ void discovery::readyRead()
         username = jsonResponse["USR"].toString().toUtf8().constData();
         msg = jsonResponse["MSG"].toString().toUtf8().constData();
 
+        ip =  sender.toString();
 
-        if (jsonResponse.contains("THUMB")){
-            // Extract image
-            QPixmap p;
-            QByteArray encoded = jsonResponse["THUMB"].toString().toLatin1();
-            p.loadFromData(QByteArray::fromBase64(encoded), "PNG");
-            thumb.addPixmap(p);
-
-            qDebug("Thumb received");
-
-        }
-
-        ip =  sender.toString().toUtf8().constData();
-
-        qDebug("Message from: [%s,%d]", ip.c_str(),senderPort );
+        qDebug() << "Message from: ["<< ip << "," << senderPort << "]";
 
         if ( msg == "Ready" ){
 
             if (this->users->contains(ip)){
 
                 shared_ptr<User> user(this->users->getUser(ip));
-
-                // update thumbnail if present
-                if (!thumb.isNull())
-                {
-                    user->setThumbnail(thumb);
-
-                    //this signal has to be emitted to update the userswindow
-                    emit modifiedThumb(thumb, user->getUsername());
-                }
 
                 // update user lifetime
                 user->stillAlive();
@@ -129,32 +110,30 @@ void discovery::readyRead()
            shared_ptr<User> user(new User());
            user->setIP(ip);
            user->setUsername(username);
-           // update thumbnail if present
-           if (!thumb.isNull())
-           {
-               user->setThumbnail(thumb);
-           }
-           this->users->addUser(user);
-           qDebug("New user added: [%s]", username.c_str());
 
-           // if a new user has been added I have to send a new notification
-           // to send him my thumbnail
-           this->notify(true);
+           this->users->addUser(user);
+           qDebug() << "New user added: [" << username << "]";
+
+           // if a new user has been added I have to send a new notification...
+           this->notify();
+           // ...and my thumbnail
+           sendThumb(QHostAddress( user->getIP() ));
 
         } else if (msg == "Quitting") {
 
             // Remove user from the list
             this->users->removeUser(ip);
-            qDebug("User [%s] removed", username.c_str());
+            qDebug() << "User " << username << "removed" << username;
 
         } else {
-            qDebug("Unknown command");
+
+            qDebug() << "Unknown command";
         }
     }
 
 }
 
-void discovery::notify(bool thumb){
+void discovery::notify(){
 
     QJsonObject jsonRequest;
 
@@ -167,36 +146,22 @@ void discovery::notify(bool thumb){
     if ( !Settings::getInstance().getOn() )
         return;
 
-    QString user = QString::fromStdString(curUsr->getUsername());
-    QIcon icn = curUsr->getThumbnail();
+    QString user = curUsr->getUsername();
     QString msg("Ready");
 
     jsonRequest["USR"]=user;
     jsonRequest["MSG"]=msg;
 
+    sendMessage(jsonRequest);
+
     bool isThumbnailChanged = curUsr->isThumbnailChanged();
     qDebug() << "isThumbnailChanged?" << isThumbnailChanged;
 
-    if (thumb || isThumbnailChanged){
-
+    if (isThumbnailChanged){
+        // send the new thumb to all clients
         curUsr->setThumbnailChanged(false);
-
-        // extracts array of bytes from QIcon
-        QByteArray data;
-        QBuffer buffer { &data };
-        QList<QSize> sizes = icn.availableSizes();
-        QPixmap pixmap = icn.pixmap(icn.actualSize(QSize(100,100)));
-        buffer.open(QIODevice::WriteOnly);
-        if (!pixmap.save(&buffer, "PNG")){
-            qDebug("Cannot send thumb");
-            return;
-        }
-        QByteArray encoded = buffer.data().toBase64();
-        jsonRequest.insert("THUMB",QJsonValue(QString(encoded)));
-
+        sendThumb();
     }
-
-    sendMessage(jsonRequest);
 
 }
 
@@ -208,7 +173,7 @@ void discovery::garbage(){
 void discovery::sendMessage(QJsonObject jsonRequest)
 {
     if (jsonRequest.empty()){
-        qDebug("jsonRequest is empty.");
+        qDebug() << "jsonRequest is empty.";
         return;
     }
 
@@ -219,7 +184,7 @@ void discovery::sendMessage(QJsonObject jsonRequest)
     if(this->socketOut->writeDatagram(data, data.size(), this->addr, this->port)==-1){
         // We may reach this point if the datagram is too big
         // The maximum size of a datagram is highly platform indipendent
-        qDebug("Error while sending datagram");
+        qDebug() << "Error while sending datagram";
         qDebug() << "Error:" << this->socketOut->error();
 
     }else{
@@ -228,6 +193,38 @@ void discovery::sendMessage(QJsonObject jsonRequest)
 
 }
 
+void discovery::sendThumb(){
+
+    // send thumb to all clients
+
+    for (auto const &u : this->users->users){
+        shared_ptr<User> usr(u.second);
+        sendThumb(QHostAddress(usr->getIP()));
+    }
+
+}
+
+void discovery::sendThumb(QHostAddress address){
+
+    // start a new thread that send the thumbnail to a specific host
+
+    QThread* thread = new QThread;
+    qint16 port = 5556;
+    ThumbSender *thumbSender = new ThumbSender(address, port, users);
+    thumbSender->moveToThread(thread);
+    connect(thumbSender, SIGNAL (error(QString)), this, SLOT (thumbSenderError(QString)));
+    connect(thread, SIGNAL (started()), thumbSender, SLOT (process()));
+    connect(thumbSender, SIGNAL (finished()), thread, SLOT (quit()));
+    connect(thumbSender, SIGNAL (finished()), thumbSender, SLOT (deleteLater()));
+    connect(thread, SIGNAL (finished()), thread, SLOT (deleteLater()));
+    thread->start();
+
+}
+
+void discovery::thumbSenderError(QString error){
+    qDebug() << "Error in thumbSender";
+    qDebug() << error;
+}
 
 discovery::~discovery()
 {
