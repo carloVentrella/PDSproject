@@ -44,8 +44,7 @@ signals:
     void processEvents();
     void progBarModifying(int value, int node);
     void progBarModifying();
-    void remTimeModifying(QString value, int node);
-    void remTimeModifying(QString value);
+    void remTimeModifying(int value, int node);
     void finished(int node);
 
     void errorHandling(int node, QString error);

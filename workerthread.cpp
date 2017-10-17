@@ -294,15 +294,10 @@ void WorkerThread::updateProgresses(int position, int percentage, int userRemtim
     emit processEvents();
 
     //modifying the remaining time for the single user
-    emit remTimeModifying(QString::fromStdString(std::to_string(userRemtime).append(" seconds left").c_str()), position);
+    emit remTimeModifying(userRemtime, position);
 
     //modifying the general progress bar
     emit progBarModifying();
-
-    emit processEvents();
-
-    //modifying the general remaining time
-    emit remTimeModifying(QString::fromStdString(to_string(globalRemtime).append(" seconds left").c_str()));
 
     emit processEvents();
 

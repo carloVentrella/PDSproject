@@ -80,8 +80,8 @@ public slots:
     void handleProgBarModifying(int value, int node);
     void handleProgBarModifying();
 
-    void handleRemTimeModifying(QString value, int node);
-    void handleRemTimeModifying(QString value);
+    void handleRemTimeModifying(int value, int node);
+    void handleRemTimeModifying();
 
 
     void errorsHandler(int node, QString error);

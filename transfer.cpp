@@ -235,8 +235,7 @@ Transfer::Transfer(QList<shared_ptr<User> > selected_users, QList< std::shared_p
         connect(t, SIGNAL(processEvents()), this, SLOT(handleProcessEvents())); //signal to update the window
         connect(t,SIGNAL(progBarModifying(int,int)),this, SLOT(handleProgBarModifying(int,int))); //signal to update the progBar for each user
         connect(t,SIGNAL(progBarModifying()),this, SLOT(handleProgBarModifying())); //signal to update the general progBar
-        connect(t,SIGNAL(remTimeModifying(QString,int)), this, SLOT(handleRemTimeModifying(QString,int))); //signal to update the label of the remainingTime for each user
-        connect(t,SIGNAL(remTimeModifying(QString)),this,SLOT(handleRemTimeModifying(QString))); //signal to handle the label of the general remaining time
+        connect(t,SIGNAL(remTimeModifying(int,int)), this, SLOT(handleRemTimeModifying(int,int))); //signal to update the label of the remainingTime for each user
         connect(t,SIGNAL(errorHandling(int,QString)), this, SLOT(errorsHandler(int,QString)));
 
         this->sendingThreads.push_back(std::move(t));
@@ -426,15 +425,29 @@ void Transfer::handleProgBarModifying()
     this->mBar.unlock();
 }
 
-void Transfer::handleRemTimeModifying(QString value, int node)
+void Transfer::handleRemTimeModifying(int value, int node)
 {
-    this->remainingTimePerSingleTransfer.at(node)->setText(value);
+    QString label = (value > 60) ? QString::fromStdString(to_string(value/60).append(" minute(s) left").c_str())
+                                 : QString::fromStdString(to_string(value).append(" second(s) left").c_str());
+
+    this->remainingTimePerSingleTransfer.at(node)->setText(label);
+    // update the global remaining time
+    this->handleRemTimeModifying();
 }
 
-void Transfer::handleRemTimeModifying(QString value)
+void Transfer::handleRemTimeModifying()
 {
+    // The global remaining time is the sum of the local remaining time
     this->mTime.lock();
-    this->remainingTime->setText(value);
+    QListIterator<QProgressBar*>  iter(this->progressBarPerSingleTransfer);
+    int globalRemtime = 0;
+    while(iter.hasNext())
+       globalRemtime += iter.next()->value();
+
+    QString label = (globalRemtime > 60) ? QString::fromStdString(to_string(globalRemtime/60).append(" minute(s) left").c_str())
+                                 : QString::fromStdString(to_string(globalRemtime).append(" second(s) left").c_str());
+
+    this->remainingTime->setText(label);
     this->mTime.unlock();
 }
 
