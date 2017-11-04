@@ -6,11 +6,11 @@
 UsersWindow::UsersWindow(shared_ptr<discovery> scout, QList<std::shared_ptr<QFile>> files, shared_ptr<Users> users, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::UsersWindow)
-{
+{    
     this->u=users;
 
     this->files=files;
-
+    qDebug() << "Starting userwindows of " << this->files.size() << " files";
     this->scout=scout;
 
     this->x_lastElement=0;

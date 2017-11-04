@@ -266,7 +266,8 @@ void WorkerThread::run()
                 int globalEstimate = (this->totSize - this->totSizeWritten)/speed;
                 int localEstimate = (file->size() - written) /speed;
 
-                qDebug() << "remaining time: " << globalEstimate << "s";
+                qDebug() << "remaining time(GLOBAL): " << globalEstimate << "s";
+                qDebug() << "remaining time(LOCAL): " << localEstimate << "s";
 
                 double percentage(this->totSizeWritten/(double)this->totSize*100);
 

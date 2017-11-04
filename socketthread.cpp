@@ -210,7 +210,9 @@ void SocketThread::onReadyRead()
 
            // if type is dir just create it,
            // if it does not exists
-           QDir dir(filePath + "/" + fileName);
+           QDir dir(getUniqueFileName(filePath + "/" + fileName));
+
+           // QDir dir(filePath + "/" + fileName);
            if (!dir.exists()) {
                if (!dir.mkpath(".")){
                    qDebug("Cannot create dir");
