@@ -19,12 +19,10 @@
 #include "tcpthumbserver.h"
 
 int new_selection(void);
-void createFileList(QFileInfoList FileInfoList);
+QList<std::shared_ptr<QFile>> createFileList(QFileInfoList FileInfoList);
 
 // list of neighbours
 shared_ptr<Users> users;
-// list of selected files
-QList<std::shared_ptr<QFile>> fileList;
 // scout
 shared_ptr<discovery> scout;
 
@@ -87,7 +85,7 @@ int new_selection(void){
 
         getline(file,tmp);
         n_selected_files = stoi(tmp);
-
+        cout << "files present in selected: " << selected.size() << endl;
         cout << n_selected_files << " file selected:" << endl;
 
         for (i=0; i<n_selected_files; i++){
@@ -110,7 +108,7 @@ int new_selection(void){
         }
 
         // Create file/dir tree
-        createFileList(files);
+        QList<std::shared_ptr<QFile>> fileList = createFileList(files);
 
         if( fileList.size() == 0){
             qDebug("No file to send.");
@@ -127,7 +125,9 @@ int new_selection(void){
 }
 
 
-void createFileList(QFileInfoList FileInfoList){
+QList<std::shared_ptr<QFile>> createFileList(QFileInfoList FileInfoList){
+
+    QList<std::shared_ptr<QFile>> fileList;
 
     for (QFileInfo fileInfo : FileInfoList){
 
@@ -152,5 +152,7 @@ void createFileList(QFileInfoList FileInfoList){
         }
 
     }
+
+    return fileList;
 
 }
