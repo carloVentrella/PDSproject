@@ -9,6 +9,7 @@
 #include <QFile>
 #include <QList>
 #include <QHostAddress>
+#include <QTcpSocket>
 
 class Transfer;
 
@@ -28,6 +29,7 @@ private:
     qint64 totSize;
     qint64 totSizeWritten;
 
+
     void updateProgresses(int position, int percentage, int userRemtime, int globalRemtime);
 
 public:
@@ -38,6 +40,7 @@ public:
     void run();
 
     QHostAddress getServerAddr() const;
+    QTcpSocket *socket;
     void setServerAddr(const QHostAddress &value);
 
 signals:

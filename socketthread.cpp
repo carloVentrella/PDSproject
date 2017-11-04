@@ -5,6 +5,8 @@
 #include <QDataStream>
 #include <QApplication>
 
+#include  <QMessageBox>
+
 SocketThread::SocketThread(qintptr descriptor, QObject *parent) : QThread(parent), m_socketDescriptor(descriptor), m_blockSize(0)
 {
     // init here
@@ -50,6 +52,16 @@ void SocketThread::onDisconnected()
 
     m_socket->close();
 
+
+    if(l!=nullptr)
+    {
+        //QMessageBox::warning(0, "Warning", "..Disconnection..");
+        // hide the loading wheel
+        emit valueChanged((float)1);
+        l->hide();
+        l=nullptr;
+    }
+
     // leave event loop
     quit();
 }
@@ -57,6 +69,37 @@ void SocketThread::onDisconnected()
 void SocketThread::onError(QAbstractSocket::SocketError error){
 
     qDebug() << error;
+
+
+    if(l!=nullptr)
+    {
+        switch (error) {
+             case QAbstractSocket::RemoteHostClosedError:
+                 QMessageBox::warning(0, tr("Error"),
+                                     tr("The host has disconnected."));
+            break;
+             case QAbstractSocket::HostNotFoundError:
+                 QMessageBox::warning(0, tr("Error"),
+                                          tr("The host was not found. Please check the "
+                                             "host name and port settings."));
+                 break;
+             case QAbstractSocket::ConnectionRefusedError:
+                 QMessageBox::warning(0, tr("Error"),
+                                          tr("The connection was refused by the peer. "
+                                             "Make sure the fortune server is running, "
+                                             "and check that the host name and port "
+                                             "settings are correct."));
+                 break;
+             default:
+                 QMessageBox::warning(0, tr("Error"),
+                                          tr("..Network Error.."));
+             }
+
+        // hide the loading wheel
+        emit valueChanged((float)1);
+        l->hide();
+        l=nullptr;
+    }
 }
 
 
@@ -68,7 +111,6 @@ void SocketThread::onReadyRead()
     QFile target;
     QString filePath = Settings::getInstance().getDestination();
 
-    qint16 totBytes=m_socket->bytesAvailable();
     while ( (bytesAvailable = m_socket->bytesAvailable()) > 0){
 
        // If all available bytes were comsumed the new packet
@@ -85,6 +127,16 @@ void SocketThread::onReadyRead()
        if (read < 0){
            qDebug() << "Cannot read " << read << "bytes";
            m_socket->disconnectFromHost();
+
+           if(l!=nullptr)
+           {
+               QMessageBox::warning(0, "Warning",  "Cannot read a negative quantity of bytes");
+               // hide the loading wheel
+               emit valueChanged((float)1);
+               l->hide();
+               l=nullptr;
+           }
+
            return;
        }
 
@@ -170,8 +222,18 @@ void SocketThread::onReadyRead()
 
                target.setFileName(fileName);
                if (!target.open(QIODevice::WriteOnly | QIODevice::Append)) {
-                   qDebug() << "Can't open file for written";
+                   qDebug() << "Can't open file for writing";
                    m_socket->disconnectFromHost();
+
+                   if(l!=nullptr)
+                   {
+                       QMessageBox::warning(0, "Warning",  "Can't open file for writing");
+                       // hide the loading wheel
+                       emit valueChanged((float)1);
+                       l->hide();
+                       l=nullptr;
+                   }
+
                    return;
                }
 
@@ -215,6 +277,17 @@ void SocketThread::onReadyRead()
                if (!dir.mkpath(".")){
                    qDebug("Cannot create dir");
                    m_socket->disconnectFromHost();
+
+
+                   if(l!=nullptr)
+                   {
+                       QMessageBox::warning(0, "Warning",  "Cannot create dir");
+                       // hide the loading wheel
+                       emit valueChanged((float)1);
+                       l->hide();
+                       l=nullptr;
+                   }
+
                    return;
                }
            }
@@ -237,6 +310,7 @@ void SocketThread::onReadyRead()
            userName = "";
            totSize = -1;
            totSizeRead = 0;
+           fileRead=0;
 
            this->sendConfirmationResponse("OK");
 
@@ -248,7 +322,6 @@ void SocketThread::onReadyRead()
        }
 
     }
-
 }
 
 void SocketThread::sendConfirmationAccept(){ 

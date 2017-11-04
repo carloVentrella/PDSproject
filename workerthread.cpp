@@ -4,7 +4,6 @@
 #include <QtCore>
 #include <iostream>
 #include <QHostAddress>
-#include <QTcpSocket>
 #include <QByteArray>
 #include <QDataStream>
 #include <QAbstractSocket>
@@ -60,7 +59,7 @@ void WorkerThread::run()
 {
     emit processEvents();
 
-    QTcpSocket *socket = new QTcpSocket;
+    socket = new QTcpSocket;
     // when the thread finishes deallocate its objects
     connect(socket, SIGNAL(disconnected()), socket, SLOT(deleteLater()));
 
