@@ -75,6 +75,9 @@ void WorkerThread::run()
 
         emit errorHandling(position, "Socket can't connect"); 
         updateProgresses(position, 100, 0, 100-this->t->getProgressBar()->value());
+        //handle the stop of the transfer in a clean way
+        emit finished(position);
+
         return;
     }    
 
@@ -128,6 +131,9 @@ void WorkerThread::run()
         emit errorHandling(position, "REFUSED");
         // TODO fix wrong parameter
         updateProgresses(position, 100, 0, 100-this->t->getProgressBar()->value());
+        //handle the stop of the transfer in a clean way
+        emit finished(position);
+
         return;
     }
 
@@ -174,6 +180,8 @@ void WorkerThread::run()
                 emit errorHandling(position, "Cannot open file, abort");                
                 // TODO fix wrong parameter
                 updateProgresses(position, 100, 0, 100-this->t->getProgressBar()->value());
+                //handle the stop of the transfer in a clean way
+                emit finished(position);
 
                 return;
             }
@@ -240,14 +248,15 @@ void WorkerThread::run()
 
                     // TODO fix wrong parameter
                     updateProgresses(position, 100, 0, 100);
+                    //handle the stop of the transfer in a clean way
+                    emit finished(position);
 
                     return;
                 }
 
                 this->totSizeWritten +=w;
                 written +=w;
-                socket->flush();
-                socket->waitForBytesWritten();
+
 
                 int duration = QDateTime::currentSecsSinceEpoch() - startTime;
                 qDebug() << "Time elapsed: " << duration << "s";
@@ -263,7 +272,8 @@ void WorkerThread::run()
 
                 updateProgresses(position, percentage, localEstimate, globalEstimate);
 
-                //msleep(1000);
+                socket->flush();
+                socket->waitForBytesWritten();
 
             }
 
@@ -290,9 +300,6 @@ void WorkerThread::updateProgresses(int position, int percentage, int userRemtim
 
     emit progBarModifying(percentage, position);
 
-    //modifying the window
-    emit processEvents();
-
     //modifying the remaining time for the single user
     emit remTimeModifying(userRemtime, position);
 
@@ -300,9 +307,6 @@ void WorkerThread::updateProgresses(int position, int percentage, int userRemtim
     emit progBarModifying();
 
     emit processEvents();
-
-    //handle the stop of the transfer in a clean way
-    emit finished(position);
 
 }
 
