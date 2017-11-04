@@ -23,10 +23,10 @@ void createFileList(QFileInfoList FileInfoList);
 
 // list of neighbours
 shared_ptr<Users> users;
-// list of selected files
-QList<std::shared_ptr<QFile>> fileList;
 // scout
 shared_ptr<discovery> scout;
+QList<std::shared_ptr<QFile>> fileList;
+
 
 void signal_handler(int sig_no){
 
@@ -74,6 +74,7 @@ int new_selection(void){
         // should be read from a config file
         string f("/tmp/selected_files");
         vector<string> selected;
+        fileList.clear();
 
         ifstream file(f, ifstream::in);
 
@@ -87,7 +88,7 @@ int new_selection(void){
 
         getline(file,tmp);
         n_selected_files = stoi(tmp);
-
+        cout << "files present in selected: " << selected.size() << endl;
         cout << n_selected_files << " file selected:" << endl;
 
         for (i=0; i<n_selected_files; i++){
@@ -118,6 +119,9 @@ int new_selection(void){
         }
 
         file.close();
+
+        for (auto x : fileList)
+            cout << x->fileName().toStdString() << endl;
 
         UsersWindow *u=new UsersWindow(scout,fileList, users,0);
         u->show();
