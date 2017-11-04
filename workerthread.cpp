@@ -240,6 +240,16 @@ void WorkerThread::run()
                 qDebug() << w << " bytes sent";
 
                 if (w == -1){
+
+                    if(t->getFlagAtNode(position)==1)
+                    {
+                        // TODO fix wrong parameter
+                        updateProgresses(position, 100, 0, 100);
+                        //handle the stop of the transfer in a clean way
+                        emit finished(position);
+
+                        return;
+                    }
                     qDebug("Cannot write on socket");
                     delete socket;
 
