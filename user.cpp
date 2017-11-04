@@ -36,7 +36,9 @@ bool User::isThumbnailChanged() const
 void User::setThumbnailChanged(bool value)
 {
     this->thumbnailChanged = value;
-    emit modifiedThumb(this->getThumbnail(),this->getUsername());
+    if (value)
+        emit modifiedThumb(this->getThumbnail(),this->getUsername());
+
 }
 
 void User::setThumbnail(const QIcon &value)

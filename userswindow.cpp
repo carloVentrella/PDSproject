@@ -49,7 +49,6 @@ UsersWindow::UsersWindow(shared_ptr<discovery> scout, QList<std::shared_ptr<QFil
             User* user=iter->second.get();
             QIcon p;
 
-            //connect(user, &User::modifiedThumb, this, &UsersWindow::handleModThumb);
             connect(user, SIGNAL(modifiedThumb(QIcon,QString)), this, SLOT(handleModThumb(QIcon,QString)));
             p=user->getThumbnail();
 
@@ -236,6 +235,7 @@ void UsersWindow::handleNewOrRemovedUsers(QString whatsNeeded, bool state)
         {
             QIcon p;
 
+            connect(currentUser.get(), SIGNAL(modifiedThumb(QIcon,QString)), this, SLOT(handleModThumb(QIcon,QString)));
             p=currentUser->getThumbnail();
 
             //username
@@ -318,6 +318,7 @@ void UsersWindow::handleNewOrRemovedUsers(QString whatsNeeded, bool state)
 
 void UsersWindow::handleModThumb(const QIcon &value, QString username)
 {
+
     //to find which label to update
     QListIterator<QToolButton *> iter(this->allButtons);
     int pos=0;
