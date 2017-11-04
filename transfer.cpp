@@ -388,6 +388,7 @@ void Transfer::handleProgBarModifying(int value, int node)
     if(value==100)
     {
         this->flags.at(node)=1;
+        this->cancelOperationPerSingleTransfer.at(node)->setEnabled(false);
     }
 
 }
@@ -407,7 +408,11 @@ void Transfer::handleProgBarModifying()
 
     this->progressBar->setValue(v);
 
-    this->cancelOperation->setEnabled(false);
+    if(v==100)
+    {
+        this->cancelOperation->setEnabled(false);
+    }
+
     QListIterator<QPushButton*> iterb(this->cancelOperationPerSingleTransfer);
     while(iterb.hasNext())
     {
