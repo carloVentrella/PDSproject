@@ -183,9 +183,6 @@ UsersWindow::UsersWindow(shared_ptr<discovery> scout, QList<std::shared_ptr<QFil
 
     connect(this->u.get(), SIGNAL(modifiedUsersMap(QString,bool)),this, SLOT(handleNewOrRemovedUsers(QString,bool)));
 
-
-    //connect((this->scout.get()), &discovery::modifiedThumb, this, &UsersWindow::handleModThumb);
-
 }
 
 UsersWindow::~UsersWindow()

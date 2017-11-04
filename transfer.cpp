@@ -25,10 +25,6 @@ Transfer::Transfer(QList<shared_ptr<User> > selected_users, QList< std::shared_p
 
     setWindowTitle("Transfer");
 
-    setWindowFlags(Qt::Window
-    | Qt::WindowMinimizeButtonHint
-    | Qt::WindowMaximizeButtonHint);
-
     //to make it appear at the right top of the screen
     QDesktopWidget *desktop=QApplication::desktop();
     int screenWidth=desktop->width();
@@ -67,6 +63,8 @@ Transfer::Transfer(QList<shared_ptr<User> > selected_users, QList< std::shared_p
             {
                 this->flags.at(i)=1; //this flag will make the thread stop
 
+                this->sendingThreads.at(i)->socket->close();
+
                 if(!this->sendingThreads.at(i)->wait(5000)) //wait untill it actually has terminated
                 {
                         this->sendingThreads.at(i)->terminate(); //thread didn't exit in time, terminate it
@@ -74,8 +72,6 @@ Transfer::Transfer(QList<shared_ptr<User> > selected_users, QList< std::shared_p
                 }
             }
         }
-
-        hide();
 
     });
 
@@ -189,6 +185,8 @@ Transfer::Transfer(QList<shared_ptr<User> > selected_users, QList< std::shared_p
             {
                 this->flags.at(position)=1;  //this flag will make the thread stop
 
+                this->sendingThreads.at(position)->socket->close();
+
                 if(!this->sendingThreads.at(position)->wait(5000)) //wait untill it actually has terminated
                 {
                         this->sendingThreads.at(position)->terminate(); //thread didn't exit in time, terminate it
@@ -198,22 +196,6 @@ Transfer::Transfer(QList<shared_ptr<User> > selected_users, QList< std::shared_p
                 //this function will be done after exiting the thread
                 this->handleCancelation(position);
 
-
-                //check if there are other threads working;
-                //if there are not any, close the window
-                int i=0;
-                while(i!=(int) flags.size())
-                {
-                    if(flags.at(i)==0)
-                    {
-                        break;
-                    }
-                    i++;
-                }
-                if(i==(int)flags.size())
-                {
-                    //this->hide();
-                }
             }
 
         });
@@ -251,6 +233,9 @@ Transfer::~Transfer()
         if(this->flags.at(i)==0)
         {
             this->flags.at(i)=1;
+
+            this->sendingThreads.at(i)->socket->close();
+
             if(!this->sendingThreads.at(i)->wait(5000)) //wait untill it actually has terminated
             {
                     this->sendingThreads.at(i)->terminate(); //thread didn't exit in time, terminate it
@@ -421,6 +406,13 @@ void Transfer::handleProgBarModifying()
     v=v/this->sendingThreads.size();
 
     this->progressBar->setValue(v);
+
+    this->cancelOperation->setEnabled(false);
+    QListIterator<QPushButton*> iterb(this->cancelOperationPerSingleTransfer);
+    while(iterb.hasNext())
+    {
+        iterb.next()->setEnabled(false);
+    }
 
     this->mBar.unlock();
 }
