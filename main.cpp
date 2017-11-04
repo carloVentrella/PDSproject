@@ -19,12 +19,14 @@
 #include "tcpthumbserver.h"
 
 int new_selection(void);
-QList<std::shared_ptr<QFile>> createFileList(QFileInfoList FileInfoList);
+void createFileList(QFileInfoList FileInfoList);
 
 // list of neighbours
 shared_ptr<Users> users;
 // scout
 shared_ptr<discovery> scout;
+QList<std::shared_ptr<QFile>> fileList;
+
 
 void signal_handler(int sig_no){
 
@@ -72,6 +74,7 @@ int new_selection(void){
         // should be read from a config file
         string f("/tmp/selected_files");
         vector<string> selected;
+        fileList.clear();
 
         ifstream file(f, ifstream::in);
 
@@ -108,7 +111,7 @@ int new_selection(void){
         }
 
         // Create file/dir tree
-        QList<std::shared_ptr<QFile>> fileList = createFileList(files);
+        createFileList(files);
 
         if( fileList.size() == 0){
             qDebug("No file to send.");
@@ -116,6 +119,9 @@ int new_selection(void){
         }
 
         file.close();
+
+        for (auto x : fileList)
+            cout << x->fileName().toStdString() << endl;
 
         UsersWindow *u=new UsersWindow(scout,fileList, users,0);
         u->show();
@@ -125,9 +131,7 @@ int new_selection(void){
 }
 
 
-QList<std::shared_ptr<QFile>> createFileList(QFileInfoList FileInfoList){
-
-    QList<std::shared_ptr<QFile>> fileList;
+void createFileList(QFileInfoList FileInfoList){
 
     for (QFileInfo fileInfo : FileInfoList){
 
@@ -152,7 +156,5 @@ QList<std::shared_ptr<QFile>> createFileList(QFileInfoList FileInfoList){
         }
 
     }
-
-    return fileList;
 
 }
