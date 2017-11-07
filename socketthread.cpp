@@ -44,6 +44,8 @@ qint64 totSize = -1;
 qint64 totSizeRead = 0;
 qint64 fileRead = 0;
 LoadingWheel* l = nullptr;
+// lookup table of unique names
+std::map<QString,QString> uniqueDirNames;
 
 
 void SocketThread::onDisconnected()
@@ -205,12 +207,8 @@ void SocketThread::onReadyRead()
            type = QString::fromUtf8(block);
            qDebug() << "Type: " << type;
 
-           // if the type is FILE, compute the unique filename
-           // a unique filename prevent overwriting existing files
-           // by adding the number of occurrences as suffix
-
            if (type == "FILE"){
-               fileName = getUniqueFileName(filePath + "/" + fileName);
+               fileName = getUniqueFileName(filePath,fileName);
            }
        }else{
 
@@ -272,9 +270,7 @@ void SocketThread::onReadyRead()
 
            // if type is dir just create it,
            // if it does not exists
-           QDir dir(getUniqueFileName(filePath + "/" + fileName));
-
-           // QDir dir(filePath + "/" + fileName);
+           QDir dir(getUniqueFileName(filePath, fileName));
            if (!dir.exists()) {
                if (!dir.mkpath(".")){
                    qDebug("Cannot create dir");
@@ -313,6 +309,7 @@ void SocketThread::onReadyRead()
            totSize = -1;
            totSizeRead = 0;
            fileRead=0;
+           uniqueDirNames.clear();
 
            this->sendConfirmationResponse("OK");
 
@@ -341,43 +338,51 @@ void SocketThread::sendConfirmationResponse(QString resp){
 
 }
 
-QString SocketThread::getUniqueFileName(QString abspath){
+QString SocketThread::getUniqueFileName(QString basepath, QString filename){
 
-    qDebug() << "Original path: " << abspath;
+    if (basepath.endsWith("/"))
+        basepath=basepath.mid(0,basepath.length()-1);
 
-    QFile f(abspath);
-    if (!f.exists()) return abspath;
+    if (filename.startsWith("/"))
+        filename=filename.mid(1);
 
-    QString basename(abspath);
-    int occurrencies = 1;
 
-    QString extesion = "", path = "", tmp = "";
+    qDebug() << "Original path: " << basepath + "/" + filename;
 
-    if (basename.contains("/")){
-        path = basename.left( basename.lastIndexOf("/")+1);
-        basename = abspath.right( abspath.length() - abspath.lastIndexOf("/") -1 );
+    int occurrencies = 0;
+    QString tmp = "",
+            left = "",
+            uniqueToken(filename),
+            token(filename);
+
+    if (filename.contains("/")){
+        int firtslash = filename.indexOf("/");
+        token = filename.left(firtslash);
+        left = filename.mid(firtslash+1);
+    }
+    else{
+        if (filename.contains(".")){
+            token = filename.left( filename.lastIndexOf(".") );
+            left = QString(".").append(filename.right(filename.section(".",-1).length()));
+        }
     }
 
-    QString uniqueFileName(basename);
+    uniqueToken = token;
 
-    if (basename.contains(".")){
-        // extract extension
-        extesion = QString(".").append(basename.right(basename.section(".",-1).length()));
+    if (uniqueDirNames.find(token) != uniqueDirNames.end()){
+        uniqueToken = uniqueDirNames.at(token);
+    }else{
+        QFile f(basepath + "/" + token);
+        // loop until a new unique name is find
+        while(f.exists()){
+            uniqueToken = token;
+            uniqueToken.append(QString::number(occurrencies++));
+            f.setFileName(basepath + "/" + uniqueToken);
+        }
 
-        // extract basename without extension
-        uniqueFileName = basename.left( basename.lastIndexOf(".") );
+        uniqueDirNames.insert(std::pair<QString,QString>(token,uniqueToken));
     }
 
-    tmp = uniqueFileName;
-
-    // loop until a new unique name is find
-    while(f.exists()){
-        uniqueFileName = tmp;
-        uniqueFileName.append( QString::number(occurrencies++) ).append(extesion);
-        f.setFileName(path + uniqueFileName);
-    }
-
-    qDebug() << "Unique filename: " << path + uniqueFileName;
-    return path + uniqueFileName;
-
+    qDebug() << "Unique filename: " << basepath + "/" + uniqueToken + "/" + left;
+    return basepath + "/" +  uniqueToken + "/" + left;
 }
