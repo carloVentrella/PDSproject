@@ -372,7 +372,8 @@ QString SocketThread::getUniqueFileName(QString basepath, QString filename){
     if (uniqueDirNames.find(token) != uniqueDirNames.end()){
         uniqueToken = uniqueDirNames.at(token);
     }else{
-        QFile f(basepath + "/" + token);
+        QString ext = left.startsWith(".") ? left : "";
+        QFile f(basepath + "/" + token + ext);
         // loop until a new unique name is find
         while(f.exists()){
             uniqueToken = token;
@@ -383,6 +384,7 @@ QString SocketThread::getUniqueFileName(QString basepath, QString filename){
         uniqueDirNames.insert(std::pair<QString,QString>(token,uniqueToken));
     }
 
-    qDebug() << "Unique filename: " << basepath + "/" + uniqueToken + "/" + left;
-    return basepath + "/" +  uniqueToken + "/" + left;
+    QString sl =  (left.startsWith(".")) ? "" : "/";
+    qDebug() << "Unique filename: " << basepath + "/" + uniqueToken + sl + left;
+    return basepath + "/" +  uniqueToken + sl + left;
 }
