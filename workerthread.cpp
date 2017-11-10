@@ -136,9 +136,10 @@ void WorkerThread::run()
         return;
     }
 
-    for (std::shared_ptr<QFile> file : files){
 
-        int startTime = QDateTime::currentMSecsSinceEpoch();
+    qint64 startTime = QDateTime::currentMSecsSinceEpoch();
+
+    for (std::shared_ptr<QFile> file : files){
 
         // get fileInfo
         QFileInfo fileInfo(file->fileName());
@@ -267,12 +268,12 @@ void WorkerThread::run()
                 written +=w;
 
 
-                float duration = (QDateTime::currentMSecsSinceEpoch() - startTime)/1000;
+                qint64 duration = (QDateTime::currentMSecsSinceEpoch() - startTime)/1000;
                 qDebug() << "Time elapsed: " << duration << "s";
                 float speed = this->totSizeWritten / (float)(duration);
                 qDebug() << "Speed: " << speed << "b/s";
 
-                int localEstimate = (file->size() - written) /speed;
+                int localEstimate = (this->totSize - this->totSizeWritten) /speed;
 
                 qDebug() << "remaining time(LOCAL): " << localEstimate << "s";
 
