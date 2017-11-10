@@ -1,7 +1,7 @@
 #include "askconfirmationwindow.h"
 #include "ui_askconfirmationwindow.h"
 
-AskConfirmationWindow::AskConfirmationWindow(QString username, int numOfFiles, int dimension, QWidget *parent) :
+AskConfirmationWindow::AskConfirmationWindow(QString username,int dimension, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AskConfirmationWindow)
 {
@@ -9,10 +9,32 @@ AskConfirmationWindow::AskConfirmationWindow(QString username, int numOfFiles, i
 
     //label for the username of the sender
     ui->nameLabel->setText(username);
-    //label for the number of files to be received
-    ui->numOfFiles->setText(QString::number(numOfFiles));
+
+    int unity=0;
+    QString measure;
+    while(dimension/1024!=0)
+    {
+        dimension=dimension/1024;
+        unity++;
+    }
+    switch(unity){
+    case 3:
+        measure="GB";
+        break;
+    case 2:
+        measure="MB";
+        break;
+    case 1:
+        measure="KB";
+        break;
+    case 0:
+        measure="B";
+    default:
+        measure="B";
+    }
+
     //label for the dimension of the  files
-    ui->dimensionLabel->setText(QString::number(dimension)); //TO BE SET: unity of measure (GB? MB?)
+    ui->dimensionLabel->setText("("+QString::number(dimension)+measure+")"); //TO BE SET: unity of measure (GB? MB?)
 
     setWindowTitle("Confirm: Y | N");
 

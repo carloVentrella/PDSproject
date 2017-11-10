@@ -14,7 +14,7 @@ class AskConfirmationWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit AskConfirmationWindow(QString username, int numOfFiles, int dimension, QWidget *parent = 0);
+    explicit AskConfirmationWindow(QString username, int dimension, QWidget *parent = 0);
     ~AskConfirmationWindow();
 
 protected:

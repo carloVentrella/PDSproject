@@ -174,7 +174,7 @@ void SocketThread::onReadyRead()
            {
                // if the property getFromAll is false
                // prompt a dialog to let the user decide
-               AskConfirmationWindow* askconfirmationwindow=new AskConfirmationWindow(this->userName, 0, totSize);                                                                        //mettere lo user, il numero di file e la dimensione
+               AskConfirmationWindow* askconfirmationwindow=new AskConfirmationWindow(this->userName, totSize);                                                                        //mettere lo user, il numero di file e la dimensione
                connect(askconfirmationwindow,SIGNAL(canBeReceived()), this, SLOT(sendConfirmationAccept()));
                connect(askconfirmationwindow,SIGNAL(cannotBeReceived()), this, SLOT(sendConfirmationRefuse()));
                askconfirmationwindow->show();
