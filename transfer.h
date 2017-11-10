@@ -129,6 +129,9 @@ private:
 
     QMutex mBar;
     QMutex mTime;
+
+    // global remaining time
+    int maxRemTime=0;
 };
 
 #endif // TRANSFER_H

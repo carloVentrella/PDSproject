@@ -73,7 +73,7 @@ void WorkerThread::run()
         delete socket;
 
         emit errorHandling(position, "Socket can't connect"); 
-        updateProgresses(position, 100, 0, 100-this->t->getProgressBar()->value());
+        updateProgresses(position, 100, 0);
         //handle the stop of the transfer in a clean way
         emit finished(position);
 
@@ -129,7 +129,7 @@ void WorkerThread::run()
     {
         emit errorHandling(position, "REFUSED");
         // TODO fix wrong parameter
-        updateProgresses(position, 100, 0, 100-this->t->getProgressBar()->value());
+        updateProgresses(position, 100, 0);
         //handle the stop of the transfer in a clean way
         emit finished(position);
 
@@ -178,7 +178,7 @@ void WorkerThread::run()
 
                 emit errorHandling(position, "Cannot open file, abort");                
                 // TODO fix wrong parameter
-                updateProgresses(position, 100, 0, 100-this->t->getProgressBar()->value());
+                updateProgresses(position, 100, 0);
                 //handle the stop of the transfer in a clean way
                 emit finished(position);
 
@@ -244,7 +244,7 @@ void WorkerThread::run()
                     if(t->getFlagAtNode(position)==1)
                     {
                         // TODO fix wrong parameter
-                        updateProgresses(position, 100, 0, 100);
+                        updateProgresses(position, 100, 0);
                         //handle the stop of the transfer in a clean way
                         emit finished(position);
 
@@ -256,7 +256,7 @@ void WorkerThread::run()
                     emit errorHandling(position, "Cannot write on socket");
 
                     // TODO fix wrong parameter
-                    updateProgresses(position, 100, 0, 100);
+                    updateProgresses(position, 100, 0);
                     //handle the stop of the transfer in a clean way
                     emit finished(position);
 
@@ -272,15 +272,13 @@ void WorkerThread::run()
                 float speed = this->totSizeWritten / (float)(duration);
                 qDebug() << "Speed: " << speed << "b/s";
 
-                int globalEstimate = (this->totSize - this->totSizeWritten)/speed;
                 int localEstimate = (file->size() - written) /speed;
 
-                qDebug() << "remaining time(GLOBAL): " << globalEstimate << "s";
                 qDebug() << "remaining time(LOCAL): " << localEstimate << "s";
 
                 double percentage(this->totSizeWritten/(double)this->totSize*100);
 
-                updateProgresses(position, percentage, localEstimate, globalEstimate);
+                updateProgresses(position, percentage, localEstimate);
 
                 socket->flush();
                 socket->waitForBytesWritten();
@@ -306,7 +304,7 @@ void WorkerThread::run()
     emit finished(position);
 }
 
-void WorkerThread::updateProgresses(int position, int percentage, int userRemtime, int globalRemtime){
+void WorkerThread::updateProgresses(int position, int percentage, int userRemtime){
 
     emit progBarModifying(percentage, position);
 

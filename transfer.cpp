@@ -427,25 +427,22 @@ void Transfer::handleRemTimeModifying(int value, int node)
     QString label = (value > 60) ? QString::fromStdString(to_string(value/60).append(" minute(s) left").c_str())
                                  : QString::fromStdString(to_string(value).append(" second(s) left").c_str());
 
-    this->remainingTimePerSingleTransfer.at(node)->setText(label);
+    this->mTime.lock();
+    if (value > this->maxRemTime)
+        this->maxRemTime = value;
     // update the global remaining time
     this->handleRemTimeModifying();
+    this->mTime.unlock();
+
+    this->remainingTimePerSingleTransfer.at(node)->setText(label);
+
 }
 
 void Transfer::handleRemTimeModifying()
 {
-    // The global remaining time is the sum of the local remaining time
-    this->mTime.lock();
-    QListIterator<QProgressBar*>  iter(this->progressBarPerSingleTransfer);
-    int globalRemtime = 0;
-    while(iter.hasNext())
-       globalRemtime += iter.next()->value();
-
-    QString label = (globalRemtime > 60) ? QString::fromStdString(to_string(globalRemtime/60).append(" minute(s) left").c_str())
-                                 : QString::fromStdString(to_string(globalRemtime).append(" second(s) left").c_str());
-
+    QString label = (maxRemTime > 60) ? QString::fromStdString(to_string(maxRemTime/60).append(" minute(s) left").c_str())
+                                 : QString::fromStdString(to_string(maxRemTime).append(" second(s) left").c_str());
     this->remainingTime->setText(label);
-    this->mTime.unlock();
 }
 
 void Transfer::errorsHandler(int node, QString error)

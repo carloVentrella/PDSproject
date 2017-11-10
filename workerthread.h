@@ -30,7 +30,7 @@ private:
     qint64 totSizeWritten;
 
 
-    void updateProgresses(int position, int percentage, int userRemtime, int globalRemtime);
+    void updateProgresses(int position, int percentage, int userRemtime);
 
 public:
     explicit WorkerThread(QObject *parent = 0, Transfer *t=0, int position=0);
