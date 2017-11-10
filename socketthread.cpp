@@ -208,7 +208,7 @@ void SocketThread::onReadyRead()
            qDebug() << "Type: " << type;
 
            if (type == "FILE"){
-               fileName = getUniqueFileName(filePath,fileName);
+               fileName = getUniqueFileName(filePath,fileName, true);
            }
        }else{
 
@@ -270,7 +270,7 @@ void SocketThread::onReadyRead()
 
            // if type is dir just create it,
            // if it does not exists
-           QDir dir(getUniqueFileName(filePath, fileName));
+           QDir dir(getUniqueFileName(filePath, fileName, false));
            if (!dir.exists()) {
                if (!dir.mkpath(".")){
                    qDebug("Cannot create dir");
@@ -338,7 +338,7 @@ void SocketThread::sendConfirmationResponse(QString resp){
 
 }
 
-QString SocketThread::getUniqueFileName(QString basepath, QString filename){
+QString SocketThread::getUniqueFileName(QString basepath, QString filename, bool isFile){
 
     if (basepath.endsWith("/"))
         basepath=basepath.mid(0,basepath.length()-1);
@@ -384,7 +384,7 @@ QString SocketThread::getUniqueFileName(QString basepath, QString filename){
         uniqueDirNames.insert(std::pair<QString,QString>(token,uniqueToken));
     }
 
-    QString sl =  (left.startsWith(".")) ? "" : "/";
+    QString sl = (left.startsWith(".") || isFile) ? "" : "/";
     qDebug() << "Unique filename: " << basepath + "/" + uniqueToken + sl + left;
     return basepath + "/" +  uniqueToken + sl + left;
 }

@@ -49,7 +49,7 @@ public slots:
         QString fileName;
         QString type;
 
-        QString getUniqueFileName(QString basepath, QString filename);
+        QString getUniqueFileName(QString basepath, QString filename, bool isFile);
 
         void sendConfirmationResponse(QString resp);
 
