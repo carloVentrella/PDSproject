@@ -431,7 +431,7 @@ void Transfer::handleRemTimeModifying(int value, int node)
 
     this->mTime.lock();
     this->remtimeValuePerSingleTransfer.replace(node,value);
-    this->maxRemTime = std::max_element(this->remtimeValuePerSingleTransfer.begin(), this->remtimeValuePerSingleTransfer.end());
+    this->maxRemTime = *std::max_element(this->remtimeValuePerSingleTransfer.begin(), this->remtimeValuePerSingleTransfer.end());
     // update the global remaining time
     this->handleRemTimeModifying();
     this->mTime.unlock();
