@@ -51,7 +51,7 @@ class ColumnExtension(GObject.GObject, Nautilus.MenuProvider):
             name="SimpleMenuExtension::Show_File_Name",
             label="Share",
             tip="Share",
-            icon="-- absolute(!) path to myappicon.png --"
+            icon="/*path of the project*/myappicon.png"
         )
         item.connect('activate', self.menu_activate_cb, files)
         items.append(item)

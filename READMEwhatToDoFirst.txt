@@ -6,11 +6,12 @@ In your home terminal, type:
 5. sudo apt-get install python-nautilus
 
 Then:
-6. cd /usr/share/nautilus-python/extensions
-7. sudo cp /*path of the file->*/nautilus-python-script.py .
-8. sudo chmod +x nautilus-python-script.py
-9. nautilus -q (don't worry about failures)
-10. nautilus --no-desktop
+6. modify path of the icon in nautilus-python-script.py
+7. cd /usr/share/nautilus-python/extensions
+8. sudo cp /*path of the project*/nautilus-python-script.py .
+9. sudo chmod +x nautilus-python-script.py
+10. nautilus -q (don't worry about failures)
+11. nautilus --no-desktop
 
 Close the terminal if necessary.
 To be sure, reboot the system.
