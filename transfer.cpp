@@ -12,6 +12,8 @@ Transfer::Transfer(QList<shared_ptr<User> > selected_users, QList< std::shared_p
 {
     this->files=files;
     this->selected_users=selected_users;
+    for (auto usr : selected_users)
+        this->remtimeValuePerSingleTransfer.append(0);
 
     //this flag is needed to understand if all the threads have finished their work so that the window can be closed
     this->flagToQuit=0;
@@ -428,8 +430,8 @@ void Transfer::handleRemTimeModifying(int value, int node)
                                  : QString::fromStdString(to_string(value).append(" second(s) left").c_str());
 
     this->mTime.lock();
-    if (value > this->maxRemTime)
-        this->maxRemTime = value;
+    this->remtimeValuePerSingleTransfer.replace(node,value);
+    this->maxRemTime = std::max_element(this->remtimeValuePerSingleTransfer.begin(), this->remtimeValuePerSingleTransfer.end());
     // update the global remaining time
     this->handleRemTimeModifying();
     this->mTime.unlock();

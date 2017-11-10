@@ -131,6 +131,7 @@ private:
     QMutex mTime;
 
     // global remaining time
+    QList<int> remtimeValuePerSingleTransfer;
     int maxRemTime=0;
 };
 
