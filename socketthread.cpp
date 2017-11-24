@@ -13,6 +13,7 @@ SocketThread::SocketThread(qintptr descriptor, QObject *parent) : QThread(parent
 
 SocketThread::~SocketThread()
 {
+    qDebug() << "Destroying socketThread";
     delete m_socket;
 }
 
@@ -65,7 +66,9 @@ void SocketThread::onDisconnected()
     }
 
     exit();
+    qDebug() << "Exited";
     emit finished();
+    qDebug() << "Finished";
 }
 
 void SocketThread::onError(QAbstractSocket::SocketError error){
@@ -242,6 +245,8 @@ void SocketThread::onReadyRead()
                        l=nullptr;
                    }
 
+                   exit();
+                   emit finished();
                    return;
                }
 
