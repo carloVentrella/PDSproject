@@ -383,7 +383,12 @@ QString SocketThread::getUniqueFileName(QString basepath, QString filename, bool
         uniqueDirNames.insert(std::pair<QString,QString>(token,uniqueToken));
     }
 
-    QString sl = (left.startsWith(".") || isFile) ? "" : "/";
-    qDebug() << "Unique filename: " << basepath + "/" + uniqueToken + sl + left;
-    return basepath + "/" +  uniqueToken + sl + left;
+    QString sl = (left.startsWith(".")) ? "" : "/";
+    QString result(basepath + "/" +  uniqueToken + sl + left);
+    if (isFile && result.endsWith("/"))
+        result = result.mid(0, result.length()-1);
+
+    qDebug() << "Unique filename: " << result;
+
+    return result;
 }
