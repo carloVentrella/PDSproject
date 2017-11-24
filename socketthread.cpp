@@ -162,6 +162,13 @@ void SocketThread::onReadyRead()
        if (userName == ""){
            userName = block;
            qDebug() << "Username: " << userName;
+
+           totSize = -1;
+           fileName == "";
+           type = "";
+           totSizeRead = 0;
+           fileRead=0;
+
        }
        // set the amount of bytes to read
        else if (totSize == -1){
