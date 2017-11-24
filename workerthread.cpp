@@ -24,6 +24,28 @@ void WorkerThread::setServerAddr(const QHostAddress &value)
     serverAddr = value;
 }
 
+void WorkerThread::onError(QAbstractSocket::SocketError error){
+
+    switch (error) {
+         case QAbstractSocket::RemoteHostClosedError:
+            emit errorHandling(position, "The host has disconnected.");
+        break;
+         case QAbstractSocket::HostNotFoundError:
+             emit errorHandling(position, "The host was not found. Please check the host name and port settings.");
+
+             break;
+         case QAbstractSocket::ConnectionRefusedError:
+             emit errorHandling(position, "The connection was refused by the peer.");
+             break;
+         default:
+             emit errorHandling(position, "..Network Error..");
+         }
+
+    updateProgresses(position, 100, 0);
+    //handle the stop of the transfer in a clean way
+    emit finished(position);
+}
+
 WorkerThread::WorkerThread(QObject *parent, Transfer *t, int position) : QThread(parent)
 {
     this->t=t;
@@ -127,6 +149,8 @@ void WorkerThread::run()
 
     if (response == "REF")
     {
+        delete socket;
+
         emit errorHandling(position, "REFUSED");
         // TODO fix wrong parameter
         updateProgresses(position, 100, 0);
@@ -234,6 +258,18 @@ void WorkerThread::run()
             qint64 w;
 
             while (!file->atEnd() ) {
+
+                if(t->getFlagAtNode(position)==1)
+                {
+                    delete socket;
+                    // TODO fix wrong parameter
+                    updateProgresses(position, 100, 0);
+                    //handle the stop of the transfer in a clean way
+                    emit finished(position);
+
+                    return;
+                }
+
                 QByteArray line = file->read(4096);
                 read += line.size();
                 w = socket->write(line);
@@ -242,17 +278,9 @@ void WorkerThread::run()
 
                 if (w == -1){
 
-                    if(t->getFlagAtNode(position)==1)
-                    {
-                        // TODO fix wrong parameter
-                        updateProgresses(position, 100, 0);
-                        //handle the stop of the transfer in a clean way
-                        emit finished(position);
-
-                        return;
-                    }
-                    qDebug("Cannot write on socket");
                     delete socket;
+
+                    qDebug("Cannot write on socket");
 
                     emit errorHandling(position, "Cannot write on socket");
 

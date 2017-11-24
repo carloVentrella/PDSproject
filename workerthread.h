@@ -52,6 +52,9 @@ signals:
 
     void errorHandling(int node, QString error);
 
+private slots:
+    void onError(QAbstractSocket::SocketError error);
+
 public slots:
 };
 
