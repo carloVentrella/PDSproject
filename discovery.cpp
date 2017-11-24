@@ -54,7 +54,7 @@ discovery::discovery(QHostAddress addr, quint16 port, shared_ptr<Users> users,  
     notify(HELLO);
 
     readyMessageTimer->start(3000);
-    garbageCollectionTimer->start(5000);
+    garbageCollectionTimer->start(7000);
 
 }
 
