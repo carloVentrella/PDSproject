@@ -30,7 +30,7 @@ private:
 
     Settings();
 
-    Settings(Settings const&);              // Don't Implement
+    Settings(Settings const&);      // Don't Implement
     void operator=(Settings const&);
 
     QString companyName="Bonsai";

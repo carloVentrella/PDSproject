@@ -7,7 +7,6 @@ ThumbServer::ThumbServer(QHostAddress host, quint16 port, shared_ptr<Users> user
       m_port(port),
       users(users)
 {
-    // your settings init there
 }
 
 void ThumbServer::start()

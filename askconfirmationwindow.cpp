@@ -35,8 +35,7 @@ AskConfirmationWindow::AskConfirmationWindow(QString username,int dimension, QWi
     }
 
     //label for the dimension of the  files
-    ui->dimensionLabel->setText("("+QString::number(dimension)+measure+")"); //TO BE SET: unity of measure (GB? MB?)
-
+    ui->dimensionLabel->setText("("+QString::number(dimension)+measure+")");
     setWindowTitle("Confirm: Y | N");
 
     //to remove the close button in the title bar

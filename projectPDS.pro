@@ -26,9 +26,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += main.cpp\
     user.cpp \
-    node.cpp \
-    file.cpp \
-    directory.cpp \
     settings.cpp \
     discovery.cpp \
     users.cpp \
@@ -38,7 +35,6 @@ SOURCES += main.cpp\
     transfer.cpp \
     workerthread.cpp \
     socketthread.cpp \
-    tcpclient.cpp \
     choosingiconwindow.cpp \
     askconfirmationwindow.cpp \
     loadingwheel.cpp \
@@ -49,9 +45,6 @@ SOURCES += main.cpp\
 
 HEADERS  += \
     user.h \
-    node.h \
-    file.h \
-    directory.h \
     settings.h \
     discovery.h \
     users.h \
@@ -61,7 +54,6 @@ HEADERS  += \
     transfer.h \
     workerthread.h \
     socketthread.h \
-    tcpclient.h \
     choosingiconwindow.h \
     askconfirmationwindow.h \
     loadingwheel.h \

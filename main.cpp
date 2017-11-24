@@ -25,7 +25,9 @@ void createFileList(QFileInfoList FileInfoList);
 shared_ptr<Users> users;
 // scout
 shared_ptr<discovery> scout;
+/*NB Qlist is impicitly shared*/
 QList<std::shared_ptr<QFile>> fileList;
+
 
 
 void signal_handler(int sig_no){

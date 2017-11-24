@@ -38,9 +38,8 @@ void LoadingWheel::setProgress(float value)
         value=0;
 
     progress = (float)value*100;
-        //yes, it is not very good, the best approach is to
-        //create something similar to QProgressBar
-        this->update();
+
+    this->update();
     qApp->processEvents();
 }
 
@@ -56,7 +55,6 @@ void LoadingWheel::paintEvent(QPaintEvent *)
         p.setRenderHint(QPainter::Antialiasing);
 
         QRectF rectangle(10.0, 20.0, 80.0, 80.0);
-        //to understand these magic numbers, look drawArc method in Qt doc
         int startAngle = -90 * 16;
         int spanAngle = progress/100 * 360 * 16;
 

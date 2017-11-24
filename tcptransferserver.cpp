@@ -6,7 +6,6 @@ Server::Server(QHostAddress host, quint16 port, QObject *parent)
       m_host(host),
       m_port(port)
 {
-    // your settings init there
 }
 
 void Server::start()

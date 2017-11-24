@@ -9,7 +9,6 @@
 
 SocketThread::SocketThread(qintptr descriptor, QObject *parent) : QThread(parent), m_socketDescriptor(descriptor), m_blockSize(0)
 {
-    // init here
 }
 
 SocketThread::~SocketThread()

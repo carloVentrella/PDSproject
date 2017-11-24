@@ -20,6 +20,7 @@ public slots:
     void setProgress(float value);
 
 protected:
+    //to handle the update of the circular bar
     void paintEvent(QPaintEvent *);
 
     void closeEvent(QCloseEvent *event) override;
