@@ -29,6 +29,7 @@ void SocketThread::run()
     this->userName = "";
 
     exec();
+
 }
 
 // bytes available in the socket
@@ -63,8 +64,8 @@ void SocketThread::onDisconnected()
         l=nullptr;
     }
 
-    // leave event loop
-    quit();
+    exit();
+    emit finished();
 }
 
 void SocketThread::onError(QAbstractSocket::SocketError error){
@@ -101,6 +102,9 @@ void SocketThread::onError(QAbstractSocket::SocketError error){
         l->hide();
         l=nullptr;
     }
+
+    exit();
+    emit finished();
 }
 
 
@@ -324,6 +328,9 @@ void SocketThread::onReadyRead()
            emit valueChanged((float)1);
            l->hide();
            l=nullptr;
+
+           exit();
+           emit finished();
        }
 
     }

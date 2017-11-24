@@ -25,6 +25,7 @@ class SocketThread : public QThread
 
         //this signal has to be used when i need to change the value in the loading wheel
         void valueChanged(float value);
+        void finished();
 
     private slots:
         // Function called when there are bytes to be read
