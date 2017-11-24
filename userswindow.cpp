@@ -52,6 +52,12 @@ UsersWindow::UsersWindow(shared_ptr<discovery> scout, QList<std::shared_ptr<QFil
             connect(user, SIGNAL(modifiedThumb(QIcon,QString)), this, SLOT(handleModThumb(QIcon,QString)));
             p=user->getThumbnail();
 
+            //if i am in private mode i will not receive the thumb from the user so i put a default thumb
+            if(!Settings::getInstance().getOn())
+            {
+                p=QIcon(":/thumbnails/privateThumb.png");
+            }
+
             //username
             QString us=user->getUsername();
             //IP
@@ -234,6 +240,11 @@ void UsersWindow::handleNewOrRemovedUsers(QString whatsNeeded, bool state)
 
             connect(currentUser.get(), SIGNAL(modifiedThumb(QIcon,QString)), this, SLOT(handleModThumb(QIcon,QString)));
             p=currentUser->getThumbnail();
+
+            if(!Settings::getInstance().getOn())
+            {
+                p=QIcon(":/thumbnails/privateThumb.png");
+            }
 
             //username
             QString us=currentUser->getUsername();

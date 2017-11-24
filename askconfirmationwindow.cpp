@@ -9,12 +9,13 @@ AskConfirmationWindow::AskConfirmationWindow(QString username,int dimension, QWi
 
     //label for the username of the sender
     ui->nameLabel->setText(username);
+    ui->nameLabel->text().append("?");
 
     int unity=0;
     QString measure;
-    while(dimension/1024!=0)
+    while(dimension/1000!=0)
     {
-        dimension=dimension/1024;
+        dimension=dimension/1000;
         unity++;
     }
     switch(unity){

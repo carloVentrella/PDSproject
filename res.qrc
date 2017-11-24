@@ -13,5 +13,6 @@
         <file>thumbnails/7.png</file>
         <file>thumbnails/9.png</file>
         <file>thumbnails/11.png</file>
+        <file>thumbnails/privateThumb.png</file>
     </qresource>
 </RCC>
