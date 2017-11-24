@@ -384,7 +384,7 @@ QString SocketThread::getUniqueFileName(QString basepath, QString filename, bool
         while(f.exists()){
             uniqueToken = token;
             uniqueToken.append(QString::number(occurrencies++));
-            f.setFileName(basepath + "/" + uniqueToken);
+            f.setFileName(basepath + "/" + uniqueToken + ext);
         }
 
         uniqueDirNames.insert(std::pair<QString,QString>(token,uniqueToken));
