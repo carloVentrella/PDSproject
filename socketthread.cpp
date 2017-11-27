@@ -7,6 +7,23 @@
 
 #include  <QMessageBox>
 
+AskConfirmationWindow* askconfirmationwindow;
+
+// bytes available in the socket
+qint64 bytesAvailable=0;
+qint64 bytesToRead = 0;
+// bytes written in the target file
+qint64 bytesWritten = 0;
+bool fileOpened = false;
+// amount of bytes to read
+qint64 totSize = -1;
+// amount of bytes read
+qint64 totSizeRead = 0;
+qint64 fileRead = 0;
+LoadingWheel* l = nullptr;
+// lookup table of unique names
+std::map<QString,QString> uniqueDirNames;
+
 SocketThread::SocketThread(qintptr descriptor, QObject *parent) : QThread(parent), m_socketDescriptor(descriptor), m_blockSize(0)
 {
 }
@@ -14,7 +31,19 @@ SocketThread::SocketThread(qintptr descriptor, QObject *parent) : QThread(parent
 SocketThread::~SocketThread()
 {
     qDebug() << "Destroying socketThread";
+    delete askconfirmationwindow;
+    qDebug() << "ask destroyed";
+    delete l;
+    qDebug() << "loadingwheel destroyed";
+
+    if(m_socket->isOpen())
+    {
+        m_socket->close();
+        qDebug() << "socket closed";
+    }
     delete m_socket;
+    qDebug() << "socketThread destroyed";
+
 }
 
 void SocketThread::run()
@@ -33,28 +62,10 @@ void SocketThread::run()
 
 }
 
-// bytes available in the socket
-qint64 bytesAvailable=0;
-qint64 bytesToRead = 0;
-// bytes written in the target file
-qint64 bytesWritten = 0;
-bool fileOpened = false;
-// amount of bytes to read
-qint64 totSize = -1;
-// amount of bytes read
-qint64 totSizeRead = 0;
-qint64 fileRead = 0;
-LoadingWheel* l = nullptr;
-// lookup table of unique names
-std::map<QString,QString> uniqueDirNames;
-
 
 void SocketThread::onDisconnected()
 {
     qDebug("Disconnection");
-
-    m_socket->close();
-
 
     if(l!=nullptr)
     {
@@ -65,10 +76,12 @@ void SocketThread::onDisconnected()
         l=nullptr;
     }
 
-    exit();
-    qDebug() << "Exited";
+
     emit finished();
     qDebug() << "Finished";
+    exit();
+    qDebug() << "Exited";
+
 }
 
 void SocketThread::onError(QAbstractSocket::SocketError error){
@@ -106,8 +119,13 @@ void SocketThread::onError(QAbstractSocket::SocketError error){
         l=nullptr;
     }
 
-    exit();
-    emit finished();
+    if(m_socket->isOpen())
+        m_socket->close();
+    else
+    {
+        exit();
+        emit finished();
+    }
 }
 
 
@@ -187,7 +205,7 @@ void SocketThread::onReadyRead()
            {
                // if the property getFromAll is false
                // prompt a dialog to let the user decide
-               AskConfirmationWindow* askconfirmationwindow=new AskConfirmationWindow(this->userName, totSize);                                                                        //mettere lo user, il numero di file e la dimensione
+               askconfirmationwindow=new AskConfirmationWindow(this->userName, totSize);                                                                        //mettere lo user, il numero di file e la dimensione
                connect(askconfirmationwindow,SIGNAL(canBeReceived()), this, SLOT(sendConfirmationAccept()));
                connect(askconfirmationwindow,SIGNAL(cannotBeReceived()), this, SLOT(sendConfirmationRefuse()));
                askconfirmationwindow->show();
@@ -245,8 +263,7 @@ void SocketThread::onReadyRead()
                        l=nullptr;
                    }
 
-                   exit();
-                   emit finished();
+                   m_socket->close();
                    return;
                }
 
@@ -334,8 +351,7 @@ void SocketThread::onReadyRead()
            l->hide();
            l=nullptr;
 
-           exit();
-           emit finished();
+           m_socket->close();
        }
 
     }

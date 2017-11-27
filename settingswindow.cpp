@@ -55,6 +55,10 @@ SettingsWindow::~SettingsWindow()
     delete s;
     delete i;
     delete showIconCheckBox;
+    delete trayIconMenu;
+    delete mSystemTrayIcon;
+    delete openAction;
+    delete quitAction;
     delete ui;
 }
 
