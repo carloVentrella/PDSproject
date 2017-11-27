@@ -117,13 +117,11 @@ void discovery::readyRead()
             this->users->addUser(user);
             qDebug() << "New user added: [" << username << "]";
 
-        }
-
-        // if a new user has been added I have to send a new notification,
-        // and I want its thumb
-        if(user->getThumbnail().isNull())
+            // if a new user has been added I have to send a new notification,
+            // and I want its thumb
             this->notify(THUMBREQ);
 
+        }
 
         /* The thumb is sent only on explicit request
          * In this way I'm sure the receiver has the transmitter

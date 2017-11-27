@@ -16,6 +16,8 @@ SocketThreadThumb::SocketThreadThumb(qintptr descriptor, shared_ptr<Users> users
 
 SocketThreadThumb::~SocketThreadThumb()
 {
+    if(m_socket->isOpen())
+        m_socket->close();
     delete m_socket;
 }
 
@@ -42,21 +44,14 @@ void SocketThreadThumb::onDisconnected()
 {
     qDebug("Disconnection");
 
-    emit finished();
     // leave event loop
-    exit();
+    quit();
 }
 
 void SocketThreadThumb::onError(QAbstractSocket::SocketError error){
 
     qDebug() << error;
-    if(m_socket->isOpen())
-        m_socket->close();
-    else
-    {
-        emit finished();
-        exit();
-    }
+    QThread::quit();
 }
 
 // bytes available in the socket
@@ -86,7 +81,7 @@ void SocketThreadThumb::onReadyRead()
 
         if (read < 0){
             qDebug() << "Cannot read " << read << "bytes";
-            m_socket->close();
+            m_socket->disconnectFromHost();
             return;
         }
 
@@ -119,8 +114,8 @@ void SocketThreadThumb::onReadyRead()
             p.loadFromData(a, "PNG");
             if (p.isNull()){
                 qDebug("The image is null. Something failed.");
-                m_socket->close();
-                return;
+                m_socket->disconnectFromHost();
+                QThread::quit();
             }
             thumb.addPixmap(p);
 
@@ -128,9 +123,9 @@ void SocketThreadThumb::onReadyRead()
 
             usr->setThumbnail(thumb);
 
-            m_socket->close();
+            m_socket->disconnectFromHost();
 
-            return;
+            QThread::quit();
         }
     }
 
