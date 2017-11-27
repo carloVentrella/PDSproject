@@ -53,7 +53,7 @@ discovery::discovery(QHostAddress addr, quint16 port, shared_ptr<Users> users,  
     // Send a ready message without waiting the timer
     notify(HELLO);
 
-    readyMessageTimer->start(3000);
+    readyMessageTimer->start(2000);
     garbageCollectionTimer->start(7000);
 
 }
