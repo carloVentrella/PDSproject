@@ -25,6 +25,9 @@ class SocketThreadThumb : public QThread
         // Function called if there is an error
         void onError(QAbstractSocket::SocketError);
 
+signals:
+        void finished();
+
     private:
         qintptr m_socketDescriptor;
         QTcpSocket *m_socket;
